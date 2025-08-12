@@ -1,0 +1,12 @@
+[user]
+	name = fletcherdeal92
+	email = 30945271+fletcherdeal92@users.noreply.github.com
+[init]
+	defaultBranch = main
+[color]
+	ui = auto
+[core]
+	excludesfile = /Users/fletcherdeal/.gitignore_global
+	editor = code --wait
+[pull]
+	rebase = false
