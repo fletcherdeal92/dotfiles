@@ -1,3 +1,48 @@
+# ~/.config/starship.toml - Severance Theme (User-Tuned)
+
+format = """
+┏ $username $time
+┠ $cmd_duration $memory_usage $git_branch$git_status
+┖ $directory
+└─Δ """
+
+[username]
+show_always = true
+style_user = "#8C9F82"  # Main Color: Green
+style_root = "#8C9F82"
+format = "[\ueb99 $user]($style)"
+
+[time]
+disabled = false
+style = "#8C9F82"      # Main Color: Green
+format = "[\uf073 $time]($style)"
+time_format = "%A at %I:%M:%S %p"
+
+[cmd_duration]
+style = "#8FBCBB"      # Neutral: Teal/Cyan
+format = "[\uf252 $duration]($style)"
+min_time = 1000
+
+[memory_usage]
+disabled = false
+style = "#C5C8C6"      # Neutral: Gray
+format = "[\ue266 $ram]($style)"
+threshold = 0
+
+[git_branch]
+style = "#8C9F82"      # Main Color: Green
+format = "[\ue0a0 $branch]($style)"
+
+[git_status]
+# Starship uses different colors for statuses (e.g., untracked, modified).
+# The base color is set by git_branch, and warnings will use the terminal's red.
+style = "#8C9F82"
+
+[directory]
+style = "#81A1C1"      # Directory Color: Blue
+format = "[\uf07c $path]($style)"
+truncation_length = 0
+
 [character]
-success_symbol = "[🤖](bold green)"
-error_symbol = "[💥](bold red)"
+success_symbol = ""
+error_symbol = ""
