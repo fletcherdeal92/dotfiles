@@ -27,8 +27,8 @@ sketchybar --bar topmost=window height=32 notch_width=185 color=$BG border_width
 default=(
 	padding_left=5
 	padding_right=5
-	icon.font="Hack Nerd Font:Bold:15.0"
-	label.font="Hack Nerd Font:Bold:13.0"
+	icon.font="JetBrainsMono Nerd Font:Bold:15.0"
+	label.font="JetBrainsMono Nerd Font:Bold:13.0"
 	icon.color=$FG
 	label.color=$FG
 	icon.padding_left=8
@@ -126,7 +126,7 @@ brew=(
 network=(
 	update_freq=2
 	icon.drawing=off
-	label.font="Hack Nerd Font:Bold:8.0"
+	label.font="JetBrainsMono Nerd Font:Bold:8.0"
 	label.width=54
 	label.align=right
 	script="$PLUGIN_DIR/network.sh"
@@ -175,7 +175,7 @@ sketchybar \
 for i in 0 1 2 3 4 5 6 7; do
 	sketchybar --add item clock.cal.$i popup.clock \
 		--set clock.cal.$i icon.drawing=off \
-			label.font="Hack Nerd Font Mono:Regular:13.0" \
+			label.font="JetBrainsMono Nerd Font Mono:Regular:13.0" \
 			label.padding_left=14 label.padding_right=14 \
 			padding_left=0 padding_right=0
 done
@@ -195,7 +195,7 @@ sketchybar --add slider volume.slider popup.volume 160 \
 		slider.background.color=$SURFACE \
 		slider.knob= \
 		slider.knob.color=$FG \
-		slider.knob.font="Hack Nerd Font:Bold:12.0" \
+		slider.knob.font="JetBrainsMono Nerd Font:Bold:12.0" \
 		padding_left=12 padding_right=12 \
 		script="$PLUGIN_DIR/volume_slider.sh" \
 	--subscribe volume.slider mouse.clicked

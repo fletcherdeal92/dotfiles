@@ -1,0 +1,21 @@
+theme = "severance"
+background-opacity = 0.95
+
+# Font configuration for Nerd Font symbols
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+
+# Clean, corporate feel
+window-decoration = true
+macos-titlebar-style = hidden
+window-padding-x = 8
+window-padding-y = 8
+
+# Smooth terminal experience  
+cursor-style = block
+cursor-style-blink = false
+
+# Shell integration for better experience
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+keybind = shift+enter=text:\n
