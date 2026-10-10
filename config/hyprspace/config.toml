@@ -22,6 +22,9 @@ exec-on-workspace-change = [
     'sketchybar --trigger hyprspace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE',
 ]
 
+# Keep the sketchybar window title in sync
+on-focus-changed = ['exec-and-forget sketchybar --trigger hyprspace_focus_change']
+
 # Hold alt and drag from anywhere inside a tiled window to move and reinsert it at the drop point.
 [mouse-drag]
 enabled = true

@@ -47,8 +47,22 @@ else
     label=(label.drawing=off icon.padding_right=10)
 fi
 
+x_of() {
+    sketchybar --query "space.$1" 2>/dev/null | jq -r '[.bounding_rects[]][0].origin[0] // empty'
+}
+
 if [ "$sid" = "$focused" ]; then
-    sketchybar --set "$NAME" "${label[@]}" background.drawing=on icon.color="$BG" label.color="$BG"
+    prev="$PREV_WORKSPACE"
+    if [ "$SENDER" = "hyprspace_workspace_change" ] && [ -n "$prev" ] && [ "$prev" != "$sid" ]; then
+        # Slide the pill over from the previous workspace's position
+        from="$(x_of "$prev")"; to="$(x_of "$sid")"
+        offset=0
+        [ -n "$from" ] && [ -n "$to" ] && offset=$(printf '%.0f' "$(echo "$from - $to" | bc)")
+        sketchybar --set "$NAME" "${label[@]}" background.drawing=on background.x_offset="$offset" \
+            --animate tanh 12 --set "$NAME" background.x_offset=0 icon.color="$BG" label.color="$BG"
+    else
+        sketchybar --set "$NAME" "${label[@]}" background.drawing=on icon.color="$BG" label.color="$BG"
+    fi
 else
     sketchybar --set "$NAME" "${label[@]}" background.drawing=off icon.color="$MUTED" label.color="$FG"
 fi

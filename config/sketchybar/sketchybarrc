@@ -33,10 +33,17 @@ default=(
 	label.color=$FG
 	icon.padding_left=8
 	icon.padding_right=4
+	popup.background.color=$BG
+	popup.background.border_color=$SURFACE
+	popup.background.border_width=2
+	popup.background.corner_radius=8
+	popup.blur_radius=0
+	popup.y_offset=4
 )
 sketchybar --default "${default[@]}"
 
-sketchybar --add event hyprspace_workspace_change
+sketchybar --add event hyprspace_workspace_change \
+	--add event hyprspace_focus_change
 
 for sid in $("$HYPRSPACE_BIN" list-workspaces --all 2>/dev/null); do
 	space=(
@@ -81,19 +88,28 @@ pkill -f "cursor_monitor.swift" 2>/dev/null || true
 sketchybar --add item chevron left \
 	--set chevron icon= icon.color=$SAGE \
 	--add item front_app left \
-	--set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
-	--subscribe front_app front_app_switched
+	--set front_app update_freq=2 \
+		icon.font="sketchybar-app-font:Regular:14.0" icon.color=$SAGE icon.y_offset=-1 \
+		label.max_chars=60 script="$PLUGIN_DIR/front_app.sh" \
+	--subscribe front_app front_app_switched hyprspace_focus_change hyprspace_workspace_change
 
 clock=(
 	update_freq=10
 	icon=
 	icon.color=$SAGE
+	popup.align=right
 	script="$PLUGIN_DIR/clock.sh"
 )
 
 battery=(
 	update_freq=120
+	popup.align=right
 	script="$PLUGIN_DIR/battery.sh"
+)
+
+volume=(
+	popup.align=right
+	script="$PLUGIN_DIR/volume.sh"
 )
 
 weather=(
@@ -101,22 +117,87 @@ weather=(
 	script="$PLUGIN_DIR/weather.sh"
 )
 
-volume=(
-	script="$PLUGIN_DIR/volume.sh"
-	click_script="osascript -e 'set volume output muted not (output muted of (get volume settings))'"
+brew=(
+	update_freq=3600
+	icon=
+	script="$PLUGIN_DIR/brew.sh"
+)
+
+network=(
+	update_freq=2
+	icon.drawing=off
+	label.font="Hack Nerd Font:Bold:11.0"
+	label.width=96
+	label.align=right
+	script="$PLUGIN_DIR/network.sh"
+)
+
+graph=(
+	background.drawing=on
+	background.color=0x00000000
+	background.height=18
+	graph.line_width=1
+	padding_left=1
+	padding_right=1
+)
+
+popup_row=(
+	icon.color=$SAGE
+	icon.padding_left=12
+	icon.padding_right=8
+	label.padding_right=12
 )
 
 sketchybar \
 	--add item clock right \
 	--set clock "${clock[@]}" \
+	--subscribe clock mouse.clicked \
 	--add item battery right \
 	--set battery "${battery[@]}" \
-	--subscribe battery system_woke power_source_change \
+	--subscribe battery system_woke power_source_change mouse.clicked \
 	--add item volume right \
 	--set volume "${volume[@]}" \
-	--subscribe volume volume_change \
+	--subscribe volume volume_change mouse.clicked \
 	--add item weather right \
 	--set weather "${weather[@]}" \
-	--subscribe weather system_woke
+	--subscribe weather system_woke \
+	--add item brew right \
+	--set brew "${brew[@]}" \
+	--subscribe brew system_woke mouse.clicked \
+	--add item network right \
+	--set network "${network[@]}" \
+	--add graph network.down right 34 \
+	--set network.down "${graph[@]}" graph.color=$SAGE graph.fill_color=0x408c9f82 \
+	--add graph network.up right 34 \
+	--set network.up "${graph[@]}" graph.color=$GOLD graph.fill_color=0x40ebcb8b
+
+# Clock popup: month calendar rows (filled by clock.sh)
+for i in 0 1 2 3 4 5 6 7; do
+	sketchybar --add item clock.cal.$i popup.clock \
+		--set clock.cal.$i icon.drawing=off \
+			label.font="Hack Nerd Font Mono:Regular:13.0" \
+			label.padding_left=14 label.padding_right=14 \
+			padding_left=0 padding_right=0
+done
+
+# Battery popup (filled by battery.sh)
+for row in status time health; do
+	sketchybar --add item battery.$row popup.battery \
+		--set battery.$row "${popup_row[@]}"
+done
+
+# Volume popup: slider + output devices (devices filled by volume.sh)
+sketchybar --add slider volume.slider popup.volume 160 \
+	--set volume.slider \
+		slider.highlight_color=$SAGE \
+		slider.background.height=6 \
+		slider.background.corner_radius=3 \
+		slider.background.color=$SURFACE \
+		slider.knob= \
+		slider.knob.color=$FG \
+		slider.knob.font="Hack Nerd Font:Bold:12.0" \
+		padding_left=12 padding_right=12 \
+		script="$PLUGIN_DIR/volume_slider.sh" \
+	--subscribe volume.slider mouse.clicked
 
 sketchybar --update
