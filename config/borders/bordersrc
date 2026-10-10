@@ -1,0 +1,10 @@
+#!/bin/bash
+# JankyBorders - Severance palette (matches Ghostty theme)
+options=(
+  style=round
+  width=4.0
+  hidpi=on
+  active_color=0xff8c9f82
+  inactive_color=0xff1e222a
+)
+borders "${options[@]}"
