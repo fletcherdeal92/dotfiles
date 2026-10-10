@@ -90,7 +90,7 @@ sketchybar --add item chevron left \
 	--add item front_app left \
 	--set front_app update_freq=2 \
 		icon.font="sketchybar-app-font:Regular:14.0" icon.color=$SAGE icon.y_offset=-1 \
-		label.max_chars=60 script="$PLUGIN_DIR/front_app.sh" \
+		label.max_chars=40 scroll_texts=on script="$PLUGIN_DIR/front_app.sh" \
 	--subscribe front_app front_app_switched hyprspace_focus_change hyprspace_workspace_change
 
 clock=(

@@ -16,6 +16,11 @@ if [ -z "$app" ]; then
 fi
 
 [ -z "$title" ] && title="$app"
+
+# Only touch the label when it changes, so long titles keep scrolling
+current="$(sketchybar --query "$NAME" | jq -r '.label.value')"
+[ "$title" = "$current" ] && exit 0
+
 __icon_map "$app"
 
 sketchybar --set "$NAME" icon.drawing=on icon="$icon_result" label="$title"
