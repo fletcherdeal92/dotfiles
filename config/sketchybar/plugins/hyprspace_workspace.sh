@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 source "$CONFIG_DIR/colors.sh"
 
@@ -21,19 +21,34 @@ fi
 
 [ -z "$NAME" ] && exit 0
 
-if [ "$SENDER" = "hyprspace_workspace_change" ] || [ -z "$SENDER" ]; then
-    sid="${NAME#space.}"
+source "$CONFIG_DIR/helpers/icon_map.sh"
 
-    focused="$FOCUSED_WORKSPACE"
-    if [ -z "$focused" ]; then
-        focused="$("$HYPRSPACE_BIN" list-workspaces --focused 2>/dev/null)"
-    fi
+sid="${NAME#space.}"
 
-    [ -z "$focused" ] && exit 0
+focused="$FOCUSED_WORKSPACE"
+if [ -z "$focused" ]; then
+    focused="$("$HYPRSPACE_BIN" list-workspaces --focused 2>/dev/null)"
+fi
 
-    if [ "$sid" = "$focused" ]; then
-        sketchybar --set "$NAME" background.drawing=on icon.color="$BG"
-    else
-        sketchybar --set "$NAME" background.drawing=off icon.color="$MUTED"
-    fi
+# App icons for every window on this workspace (one icon per app)
+icons=""
+while IFS= read -r app; do
+    [ -z "$app" ] && continue
+    __icon_map "$app"
+    icons="$icons $icon_result"
+done <<EOF
+$("$HYPRSPACE_BIN" list-windows --workspace "$sid" --format '%{app-name}' 2>/dev/null | sort -u)
+EOF
+icons="${icons# }"
+
+if [ -n "$icons" ]; then
+    label=(label="$icons" label.drawing=on icon.padding_right=4)
+else
+    label=(label.drawing=off icon.padding_right=10)
+fi
+
+if [ "$sid" = "$focused" ]; then
+    sketchybar --set "$NAME" "${label[@]}" background.drawing=on icon.color="$BG" label.color="$BG"
+else
+    sketchybar --set "$NAME" "${label[@]}" background.drawing=off icon.color="$MUTED" label.color="$FG"
 fi
