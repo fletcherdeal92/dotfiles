@@ -1,5 +1,7 @@
 #!/bin/sh
 
+source "$CONFIG_DIR/colors.sh"
+
 if [ -n "${HYPRSPACE_BIN:-}" ]; then
     HYPRSPACE_BIN="$HYPRSPACE_BIN"
 elif command -v brew >/dev/null 2>&1; then
@@ -30,8 +32,8 @@ if [ "$SENDER" = "hyprspace_workspace_change" ] || [ -z "$SENDER" ]; then
     [ -z "$focused" ] && exit 0
 
     if [ "$sid" = "$focused" ]; then
-        sketchybar --set "$NAME" background.drawing=on
+        sketchybar --set "$NAME" background.drawing=on icon.color="$BG"
     else
-        sketchybar --set "$NAME" background.drawing=off
+        sketchybar --set "$NAME" background.drawing=off icon.color="$MUTED"
     fi
 fi
