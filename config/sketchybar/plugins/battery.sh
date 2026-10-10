@@ -10,11 +10,11 @@ if [[ -z "$PERCENTAGE" ]]; then
 fi
 
 case ${PERCENTAGE} in
-9[0-9] | 100) ICON="" ;;
-[6-8][0-9])   ICON="" ;;
-[3-5][0-9])   ICON="" ;;
-[1-2][0-9])   ICON="" ;;
-*)            ICON="" ;;
+9[0-9] | 100) ICON="" ;;
+[6-8][0-9])   ICON="" ;;
+[3-5][0-9])   ICON="" ;;
+[1-2][0-9])   ICON="" ;;
+*)            ICON="" ;;
 esac
 
 if [[ $PERCENTAGE -ge 50 ]]; then
@@ -26,7 +26,7 @@ else
 fi
 
 if echo "$BATT" | grep -q 'AC Power'; then
-    ICON=""
+    ICON=""
     ICON_COLOR="$SAGE"
 fi
 

@@ -22,13 +22,13 @@ fi
 
 source "$CONFIG_DIR/colors.sh"
 
-sketchybar --bar topmost=window height=40 color=$BG border_width=0 shadow=off
+sketchybar --bar topmost=window height=32 notch_width=185 color=$BG border_width=0 shadow=off
 
 default=(
 	padding_left=5
 	padding_right=5
-	icon.font="Hack Nerd Font:Bold:17.0"
-	label.font="Hack Nerd Font:Bold:14.0"
+	icon.font="Hack Nerd Font:Bold:15.0"
+	label.font="Hack Nerd Font:Bold:13.0"
 	icon.color=$FG
 	label.color=$FG
 	icon.padding_left=8
@@ -46,7 +46,7 @@ for sid in $("$HYPRSPACE_BIN" list-workspaces --all 2>/dev/null); do
 		icon.padding_right=10
 		background.color=$SAGE
 		background.corner_radius=6
-		background.height=24
+		background.height=22
 		background.drawing=off
 		background.position=center
 		label.position=center
@@ -84,7 +84,7 @@ sketchybar --add item chevron left \
 
 clock=(
 	update_freq=10
-	icon=
+	icon=
 	icon.color=$SAGE
 	script="$PLUGIN_DIR/clock.sh"
 )
