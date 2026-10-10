@@ -59,7 +59,7 @@ if [ "$sid" = "$focused" ]; then
         offset=0
         [ -n "$from" ] && [ -n "$to" ] && offset=$(printf '%.0f' "$(echo "$from - $to" | bc)")
         sketchybar --set "$NAME" "${label[@]}" background.drawing=on background.x_offset="$offset" \
-            --animate tanh 12 --set "$NAME" background.x_offset=0 icon.color="$BG" label.color="$BG"
+            --animate tanh 8 --set "$NAME" background.x_offset=0 icon.color="$BG" label.color="$BG"
     else
         sketchybar --set "$NAME" "${label[@]}" background.drawing=on icon.color="$BG" label.color="$BG"
     fi
