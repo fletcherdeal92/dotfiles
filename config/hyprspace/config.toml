@@ -36,7 +36,7 @@ inner.vertical = 5
 outer.left = 2
 outer.right = 2
 outer.bottom = 2
-outer.top = [{ monitor."built-in" = 38 }, { monitor."main" = 48 }, 48]
+outer.top = [{ monitor."built-in" = 5 }, { monitor."main" = 48 }, 48]
 
 # ---------- MAIN KEY BINDINGS -----------
 
