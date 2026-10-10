@@ -1,0 +1,14 @@
+# SwipeAeroSpace — trackpad swipes for Hyprspace workspaces.
+# Hyprspace exposes the AeroSpace socket via a symlink made in
+# ~/.config/hyprspace/config.toml (after-startup-command).
+
+fingers = "Three"
+natural = true
+wrap = true
+skip-empty = false
+threshold = 1.0
+multiSwipe = true
+maxSteps = 3
+
+# Three-finger swipe up is macOS Mission Control; keep it there.
+swipeUpOverview = false

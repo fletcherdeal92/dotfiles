@@ -14,7 +14,10 @@ config-version = 2
 start-at-login = true
 
 # borders runs as a brew service: ~/.config/borders/bordersrc
-after-startup-command = []
+# SwipeAeroSpace only knows AeroSpace's socket path; point it at Hyprspace's.
+after-startup-command = [
+    'exec-and-forget ln -sf /tmp/peachlife.hyprspace-$USER.sock /tmp/bobko.aerospace-$USER.sock',
+]
 
 exec-on-workspace-change = [
     '/bin/bash',
