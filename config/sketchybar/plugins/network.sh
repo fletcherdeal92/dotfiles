@@ -24,7 +24,7 @@ DT=$((NOW - PNOW)); [ "$DT" -le 0 ] && exit 0
 
 awk -v i="$IN" -v pi="$PIN" -v o="$OUT" -v po="$POUT" -v dt="$DT" '
 function human(b) {
-    if (b >= 1048576) return sprintf("%.1fM", b / 1048576)
+    if (b >= 1048576) return sprintf("%.0fM", b / 1048576)
     if (b >= 1024)    return sprintf("%.0fK", b / 1024)
     return sprintf("%.0fB", b)
 }

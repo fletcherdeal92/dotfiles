@@ -126,8 +126,8 @@ brew=(
 network=(
 	update_freq=2
 	icon.drawing=off
-	label.font="Hack Nerd Font:Bold:11.0"
-	label.width=96
+	label.font="Hack Nerd Font:Bold:8.0"
+	label.width=54
 	label.align=right
 	script="$PLUGIN_DIR/network.sh"
 )
