@@ -30,7 +30,28 @@ if [ -z "$focused" ]; then
     focused="$("$HYPRSPACE_BIN" list-workspaces --focused 2>/dev/null)"
 fi
 
-# App icons for every window on this workspace (one icon per app)
+x_of() {
+    sketchybar --query "space.$1" 2>/dev/null | jq -r '[.bounding_rects[]][0].origin[0] // empty'
+}
+
+# 1) Move the focus pill first so the bar keeps up with the switch
+if [ "$sid" = "$focused" ]; then
+    prev="$PREV_WORKSPACE"
+    if [ "$SENDER" = "hyprspace_workspace_change" ] && [ -n "$prev" ] && [ "$prev" != "$sid" ]; then
+        # Slide the pill over from the previous workspace's position
+        from="$(x_of "$prev")"; to="$(x_of "$sid")"
+        offset=0
+        [ -n "$from" ] && [ -n "$to" ] && offset=$(awk -v a="$from" -v b="$to" 'BEGIN { printf "%.0f", a - b }')
+        sketchybar --set "$NAME" background.drawing=on background.x_offset="$offset" \
+            --animate tanh 8 --set "$NAME" background.x_offset=0 icon.color="$BG" label.color="$BG"
+    else
+        sketchybar --set "$NAME" background.drawing=on icon.color="$BG" label.color="$BG"
+    fi
+else
+    sketchybar --set "$NAME" background.drawing=off icon.color="$MUTED" label.color="$FG"
+fi
+
+# 2) Then refresh the app icons for every window on this workspace
 icons=""
 while IFS= read -r app; do
     [ -z "$app" ] && continue
@@ -42,27 +63,7 @@ EOF
 icons="${icons# }"
 
 if [ -n "$icons" ]; then
-    label=(label="$icons" label.drawing=on icon.padding_right=4)
+    sketchybar --set "$NAME" label="$icons" label.drawing=on icon.padding_right=4
 else
-    label=(label.drawing=off icon.padding_right=10)
-fi
-
-x_of() {
-    sketchybar --query "space.$1" 2>/dev/null | jq -r '[.bounding_rects[]][0].origin[0] // empty'
-}
-
-if [ "$sid" = "$focused" ]; then
-    prev="$PREV_WORKSPACE"
-    if [ "$SENDER" = "hyprspace_workspace_change" ] && [ -n "$prev" ] && [ "$prev" != "$sid" ]; then
-        # Slide the pill over from the previous workspace's position
-        from="$(x_of "$prev")"; to="$(x_of "$sid")"
-        offset=0
-        [ -n "$from" ] && [ -n "$to" ] && offset=$(printf '%.0f' "$(echo "$from - $to" | bc)")
-        sketchybar --set "$NAME" "${label[@]}" background.drawing=on background.x_offset="$offset" \
-            --animate tanh 8 --set "$NAME" background.x_offset=0 icon.color="$BG" label.color="$BG"
-    else
-        sketchybar --set "$NAME" "${label[@]}" background.drawing=on icon.color="$BG" label.color="$BG"
-    fi
-else
-    sketchybar --set "$NAME" "${label[@]}" background.drawing=off icon.color="$MUTED" label.color="$FG"
+    sketchybar --set "$NAME" label.drawing=off icon.padding_right=10
 fi
