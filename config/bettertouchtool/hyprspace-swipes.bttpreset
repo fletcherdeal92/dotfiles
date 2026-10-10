@@ -1,0 +1,61 @@
+{
+  "BTTPresetName" : "Default",
+  "BTTPresetColor" : "232.050000, 182.081900, 55.692000, 255.000000",
+  "BTTPresetUUID" : "DF76B5AA-E2F6-41A1-BDD4-F0EF47B5E807",
+  "BTTPresetContent" : [
+    {
+      "BTTAppBundleIdentifier" : "BT.G",
+      "BTTAppName" : "Global",
+      "BTTAppAutoInvertIcon" : 1,
+      "BTTTriggers" : [
+        {
+          "BTTLastUpdatedAt" : 1791647337.635958,
+          "BTTTriggerType" : 101,
+          "BTTTriggerTypeDescriptionReadOnly" : "3 Finger Swipe Right",
+          "BTTTriggerTypeDescription" : "Hyprspace: previous workspace",
+          "BTTTriggerClass" : "BTTTriggerTypeTouchpadAll",
+          "BTTUUID" : "27C6DB16-9602-4DA2-A07F-6181C071E4B9",
+          "BTTPredefinedActionType" : 206,
+          "BTTPredefinedActionName" : "Execute Shell Script  or  Task",
+          "BTTShellTaskActionScript" : "/opt/homebrew/bin/hyprspace workspace --wrap-around --no-stdin prev",
+          "BTTShellTaskActionConfig" : "/bin/bash:::-c:::-:::",
+          "BTTOrder" : 0,
+          "BTTGestureNotes" : "Hyprspace: previous workspace"
+        },
+        {
+          "BTTLastUpdatedAt" : 1791647337.577744,
+          "BTTTriggerType" : 100,
+          "BTTTriggerTypeDescriptionReadOnly" : "3 Finger Swipe Left",
+          "BTTTriggerTypeDescription" : "Hyprspace: next workspace",
+          "BTTTriggerClass" : "BTTTriggerTypeTouchpadAll",
+          "BTTUUID" : "D94EFF50-4BB9-475F-8040-82A1FE7992D6",
+          "BTTPredefinedActionType" : 206,
+          "BTTPredefinedActionName" : "Execute Shell Script  or  Task",
+          "BTTShellTaskActionScript" : "/opt/homebrew/bin/hyprspace workspace --wrap-around --no-stdin next",
+          "BTTShellTaskActionConfig" : "/bin/bash:::-c:::-:::",
+          "BTTOrder" : 0,
+          "BTTGestureNotes" : "Hyprspace: next workspace"
+        }
+      ]
+    },
+    {
+      "BTTAppBundleIdentifier" : "BT.L",
+      "BTTAppName" : "Recently Used",
+      "BTTAppAutoInvertIcon" : 1,
+      "BTTTriggers" : [
+
+      ]
+    },
+    {
+      "BTTAppBundleIdentifier" : "com.apple.finder",
+      "BTTAppName" : "Finder",
+      "BTTAppAutoInvertIcon" : 1,
+      "BTTTriggers" : [
+
+      ]
+    }
+  ],
+  "BTTPresetSnapAreas" : [
+
+  ]
+}
