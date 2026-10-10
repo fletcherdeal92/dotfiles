@@ -21,7 +21,7 @@ fi
 
 [ -z "$NAME" ] && exit 0
 
-source "$CONFIG_DIR/helpers/icon_map.sh"
+source "$CONFIG_DIR/helpers/icon_overrides.sh"
 
 sid="${NAME#space.}"
 
@@ -55,7 +55,7 @@ fi
 icons=""
 while IFS= read -r app; do
     [ -z "$app" ] && continue
-    __icon_map "$app"
+    app_icon "$app"
     icons="$icons $icon_result"
 done <<EOF
 $("$HYPRSPACE_BIN" list-windows --workspace "$sid" --format '%{app-name}' 2>/dev/null | sort -u)
