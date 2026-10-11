@@ -6,6 +6,8 @@
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Rebuild with: uv run wallpapers/topo_tallulah.py
+WALLPAPER="$DOTFILES/wallpapers/topo-tallulah.png"
 DRY=0; LINKS_ONLY=0
 for arg in "$@"; do
     case "$arg" in
@@ -74,7 +76,7 @@ say "Installing VS Code Severance theme"
 run python3 "$DOTFILES/config/vscode/install-theme.py"
 
 say "Setting wallpaper"
-run osascript -e "tell application \"System Events\" to set picture of every desktop to POSIX file \"$DOTFILES/wallpapers/severance-glow.png\""
+run osascript -e "tell application \"System Events\" to set picture of every desktop to POSIX file \"$WALLPAPER\""
 
 say "Done. Manual steps:"
 cat <<'STEPS'

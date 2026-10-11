@@ -27,6 +27,7 @@ brew "ripgrep"
 brew "tree"
 brew "btop"
 brew "fastfetch"
+brew "uv"                       # runs wallpapers/topo_tallulah.py
 
 # ---- git ----
 brew "git"
