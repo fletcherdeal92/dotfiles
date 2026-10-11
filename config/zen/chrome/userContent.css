@@ -77,7 +77,7 @@
   .result .content { color: #9AA0A8 !important; }
   .result .highlight { color: #E5E9F0 !important; }
   /* Instant answers + infobox in gold */
-  .answer { border-left: 2px solid #EBCB8B !important; border-radius: 6px !important; }
+  .answer { border-left: 2px solid #EBCB8B !important; border-radius: 6px !important; padding-left: 1rem !important; }
   .answer a, .answer-url { color: #EBCB8B !important; }
   .infobox { border: 1px solid rgba(235, 203, 139, 0.35) !important; border-radius: 8px !important; }
   .infobox h2, .infobox .title { color: #EBCB8B !important; }
