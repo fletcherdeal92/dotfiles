@@ -18,3 +18,70 @@
     --in-content-accent-color: #8C9F82 !important;
   }
 }
+
+/* SearXNG (home server, port 8888) — matched by pattern so the tailnet name
+   stays out of git. Calm results on bg, sage hover, muted URLs, gold answers. */
+@-moz-document regexp("https?://([^/]+\\.ts\\.net|192\\.168\\.[0-9.]+|localhost):8888/.*") {
+  :root, :root.theme-dark {
+    --color-base-background: #0A0F14 !important;
+    --color-base-background-mobile: #0A0F14 !important;
+    --color-base-font: #C5C8C6 !important;
+    --color-base-font-rgb: 197, 200, 198 !important;
+    --color-header-background: #0A0F14 !important;
+    --color-header-border: #1E222A !important;
+    --color-footer-background: #0A0F14 !important;
+    --color-footer-border: #1E222A !important;
+    --color-search-background: #1E222A !important;
+    --color-search-background-hover: #8C9F82 !important;
+    --color-search-border: #2A303B !important;
+    --color-search-font: #C5C8C6 !important;
+    --color-search-shadow: none !important;
+    --color-autocomplete-background: #1E222A !important;
+    --color-autocomplete-background-hover: #2A303B !important;
+    --color-autocomplete-border: #2A303B !important;
+    --color-autocomplete-font: #C5C8C6 !important;
+    --color-autocomplete-shadow: none !important;
+    --color-btn-background: #8C9F82 !important;
+    --color-btn-font: #0A0F14 !important;
+    --color-categories-item-border-selected: #8C9F82 !important;
+    --color-categories-item-selected-font: #8C9F82 !important;
+    --color-result-background: transparent !important;
+    --color-result-border: transparent !important;
+    --color-result-link-font: #C5C8C6 !important;
+    --color-result-link-font-highlight: #8C9F82 !important;
+    --color-result-link-visited-font: #9AA0A8 !important;
+    --color-result-url-font: #4C566A !important;
+    --color-url-font: #4C566A !important;
+    --color-url-visited-font: #4C566A !important;
+    --color-result-engines-font: #4C566A !important;
+    --color-result-publishdate-font: #4C566A !important;
+    --color-result-description-highlight-font: #E5E9F0 !important;
+    --color-result-detail-link: #81A1C1 !important;
+    --color-result-vim-arrow: #8C9F82 !important;
+    --color-answer-background: #1E222A !important;
+    --color-answer-font: #C5C8C6 !important;
+    --color-sidebar-background: #0E141A !important;
+    --color-sidebar-border: #1E222A !important;
+    --color-sidebar-font: #C5C8C6 !important;
+    --color-show-btn-background: #1E222A !important;
+    --color-show-btn-font: #C5C8C6 !important;
+    --color-settings-tr-hover: #1E222A !important;
+    --color-settings-table-group-background: #0E141A !important;
+  }
+  body, input, button, textarea {
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", ui-monospace, monospace !important;
+  }
+  /* Titles calm by default, sage on hover */
+  .result h3 a, .result h3 a:visited { color: #C5C8C6 !important; text-decoration: none !important; }
+  .result h3 a:hover { color: #8C9F82 !important; }
+  .result .content { color: #9AA0A8 !important; }
+  .result .highlight { color: #E5E9F0 !important; }
+  /* Instant answers + infobox in gold */
+  .answer { border-left: 2px solid #EBCB8B !important; border-radius: 6px !important; }
+  .answer a, .answer-url { color: #EBCB8B !important; }
+  .infobox { border: 1px solid rgba(235, 203, 139, 0.35) !important; border-radius: 8px !important; }
+  .infobox h2, .infobox .title { color: #EBCB8B !important; }
+  .infobox a { color: #81A1C1 !important; }
+  .infobox a:hover { color: #8C9F82 !important; }
+  .search_box, #search_view .search_box { border-radius: 8px !important; box-shadow: none !important; }
+}
