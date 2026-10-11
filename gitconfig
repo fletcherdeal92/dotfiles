@@ -8,6 +8,7 @@
 [core]
 	excludesfile = /Users/fletcherdeal/.gitignore_global
 	editor = code --wait
+	pager = delta
 [pull]
 	rebase = false
 [filter "lfs"]
@@ -15,3 +16,27 @@
 	required = true
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
+[interactive]
+	diffFilter = delta --color-only
+[merge]
+	conflictstyle = zdiff3
+[delta]
+	# Severance palette; syntax colours come from the terminal (ansi)
+	navigate = true
+	line-numbers = true
+	syntax-theme = ansi
+	file-style = "#8C9F82" bold
+	file-decoration-style = "#4C566A" ul
+	hunk-header-style = file line-number syntax
+	hunk-header-decoration-style = "#4C566A" box
+	hunk-header-file-style = "#81A1C1"
+	hunk-header-line-number-style = "#4C566A"
+	minus-style = syntax "#24161a"
+	minus-emph-style = syntax "#4a2329"
+	plus-style = syntax "#172117"
+	plus-emph-style = syntax "#2f3d2b"
+	line-numbers-minus-style = "#BF616A"
+	line-numbers-plus-style = "#8C9F82"
+	line-numbers-zero-style = "#4C566A"
+	line-numbers-left-style = "#1E222A"
+	line-numbers-right-style = "#1E222A"

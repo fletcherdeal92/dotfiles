@@ -1,0 +1,52 @@
+/* Severance palette for Obsidian (dark mode).
+   Copy into <vault>/.obsidian/snippets/ and enable under
+   Settings → Appearance → CSS snippets. */
+.theme-dark {
+  --color-base-00: #0A0F14;
+  --color-base-05: #0C1217;
+  --color-base-10: #0E141A;
+  --color-base-20: #12181F;
+  --color-base-25: #161C23;
+  --color-base-30: #1E222A;
+  --color-base-35: #2A303B;
+  --color-base-40: #3B4252;
+  --color-base-50: #4C566A;
+  --color-base-60: #7B8394;
+  --color-base-70: #A3A9B2;
+  --color-base-100: #C5C8C6;
+
+  --color-red: #BF616A;
+  --color-orange: #D08770;
+  --color-yellow: #EBCB8B;
+  --color-green: #8C9F82;
+  --color-cyan: #8FBCBB;
+  --color-blue: #81A1C1;
+  --color-purple: #B48EAD;
+  --color-pink: #B48EAD;
+
+  --color-accent: #8C9F82;
+  --color-accent-1: #A3BE8C;
+  --color-accent-2: #B5C9AC;
+  --accent-h: 101;
+  --accent-s: 13%;
+  --accent-l: 57%;
+
+  --text-normal: #C5C8C6;
+  --text-muted: #7B8394;
+  --text-faint: #4C566A;
+  --text-accent: #8C9F82;
+  --text-selection: rgba(76, 86, 106, 0.5);
+  --link-color: #81A1C1;
+  --link-external-color: #88C0D0;
+  --h1-color: #8C9F82;
+  --h2-color: #8C9F82;
+  --h3-color: #81A1C1;
+  --h4-color: #8FBCBB;
+  --h5-color: #C5C8C6;
+  --h6-color: #7B8394;
+  --code-normal: #8C9F82;
+  --blockquote-border-color: #4C566A;
+  --checkbox-color: #8C9F82;
+  --tag-color: #8FBCBB;
+  --tag-background: rgba(143, 188, 187, 0.12);
+}

@@ -10,6 +10,7 @@ alias find="fd"
 
 # eza only reads ~/.config on macOS when told to
 export EZA_CONFIG_DIR="$HOME/.config/eza"
+export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"
 
 # fzf — Ctrl-R history, Ctrl-T files, Alt-C dirs (Severance palette)
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'

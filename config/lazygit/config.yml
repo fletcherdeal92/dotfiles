@@ -1,0 +1,22 @@
+# lazygit — Severance palette
+gui:
+  nerdFontsVersion: "3"
+  border: rounded
+  theme:
+    activeBorderColor: ["#8C9F82", bold]
+    inactiveBorderColor: ["#4C566A"]
+    searchingActiveBorderColor: ["#EBCB8B", bold]
+    optionsTextColor: ["#81A1C1"]
+    selectedLineBgColor: ["#1E222A"]
+    inactiveViewSelectedLineBgColor: ["#0E141A"]
+    cherryPickedCommitFgColor: ["#8FBCBB"]
+    cherryPickedCommitBgColor: ["#1E222A"]
+    markedBaseCommitFgColor: ["#EBCB8B"]
+    unstagedChangesColor: ["#BF616A"]
+    defaultFgColor: ["#C5C8C6"]
+git:
+  diffRenderers:
+    - type: stdinFilter
+      name: delta
+      colorArg: always
+      command: delta --paging=never

@@ -32,6 +32,7 @@ brew "fastfetch"
 brew "git"
 brew "git-lfs"
 brew "lazygit"
+brew "git-delta"
 
 # ---- apps ----
 cask "alt-tab"

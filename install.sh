@@ -31,6 +31,7 @@ LINKS=(
     ".config/eza"                "config/eza"
     ".config/btop"               "config/btop"
     ".config/fastfetch"          "config/fastfetch"
+    ".config/lazygit"            "config/lazygit"
 )
 
 link_all() {
@@ -68,6 +69,9 @@ link_all
 say "Starting services"
 run brew services start sketchybar
 run brew services start borders
+
+say "Installing VS Code Severance theme"
+run python3 "$DOTFILES/config/vscode/install-theme.py"
 
 say "Setting wallpaper"
 run osascript -e "tell application \"System Events\" to set picture of every desktop to POSIX file \"$DOTFILES/wallpapers/severance-glow.png\""
