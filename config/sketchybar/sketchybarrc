@@ -134,6 +134,18 @@ volume=(
 	script="$PLUGIN_DIR/volume.sh"
 )
 
+homelab=(
+	update_freq=180
+	icon=
+	icon.font="JetBrainsMono Nerd Font:Bold:8.0"
+	icon.color=$MUTED
+	icon.padding_left=8
+	icon.padding_right=8
+	label.drawing=off
+	popup.align=right
+	script="$PLUGIN_DIR/homelab.sh"
+)
+
 focus=(
 	drawing=off
 	icon=
@@ -208,6 +220,9 @@ sketchybar \
 	--add item volume right \
 	--set volume "${volume[@]}" "${hover[@]}" \
 	--subscribe volume volume_change mouse.clicked mouse.entered mouse.exited \
+	--add item homelab right \
+	--set homelab "${homelab[@]}" "${hover[@]}" \
+	--subscribe homelab system_woke mouse.clicked mouse.entered mouse.exited \
 	--add item weather right \
 	--set weather "${weather[@]}" \
 	--subscribe weather system_woke \
@@ -220,7 +235,7 @@ sketchybar \
 	--set network.down "${graph[@]}" graph.color=$SAGE graph.fill_color=0x408c9f82 \
 	--add graph network.up right 34 \
 	--set network.up "${graph[@]}" graph.color=$GOLD graph.fill_color=0x40ebcb8b \
-	--add bracket status clock focus battery volume weather brew network network.down network.up \
+	--add bracket status clock focus battery volume homelab weather brew network network.down network.up \
 	--set status "${status_group[@]}"
 
 # Clock popup: month calendar rows (filled by clock.sh)
@@ -230,6 +245,12 @@ for i in 0 1 2 3 4 5 6 7; do
 			label.font="JetBrainsMono Nerd Font Mono:Regular:13.0" \
 			label.padding_left=14 label.padding_right=14 \
 			padding_left=0 padding_right=0
+done
+
+# Homelab popup (filled by homelab.sh)
+for row in status time; do
+	sketchybar --add item homelab.$row popup.homelab \
+		--set homelab.$row icon.drawing=off label.padding_left=12 label.padding_right=12
 done
 
 # Battery popup (filled by battery.sh)
