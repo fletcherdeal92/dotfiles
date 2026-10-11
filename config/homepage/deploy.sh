@@ -4,9 +4,10 @@
 #   ./deploy.sh --dry-run  show what would happen
 set -euo pipefail
 
-HOST="192.168.1.66"                 # SSH host (see ~/.ssh/config)
-CONFIG_DIR="${HOMEPAGE_CONFIG_DIR:-}"  # leave empty to read it from the container's mounts
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HERE/../../private/homelab.env"   # HOMELAB_HOST (not committed)
+HOST="$HOMELAB_HOST"
+CONFIG_DIR="${HOMEPAGE_CONFIG_DIR:-}"  # leave empty to read it from the container's mounts
 LOCAL_BACKUPS="$HOME/.cache/rice-homepage/backups"
 STAMP="$(date +%Y%m%d%H%M%S)"
 

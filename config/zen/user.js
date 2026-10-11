@@ -1,8 +1,8 @@
-// Zen — managed by dotfiles (config/zen/user.js). Applied on every launch.
+// Zen — managed by dotfiles (config/zen/user.js). install.sh writes this plus
+// the private homepage URL into the profile's user.js; applied on every launch.
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 
-// Homepage on the home server
-user_pref("browser.startup.homepage", "http://192.168.1.66:3000");
+// Start on the homepage (URL appended from private/homelab.env)
 user_pref("browser.startup.page", 1);
 
 // Dark everywhere

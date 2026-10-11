@@ -10,10 +10,15 @@ source "$CONFIG_DIR/colors.sh"
 source "$CONFIG_DIR/helpers/hover.sh"
 handle_hover
 
-HOST="192.168.1.66"
-URL="http://192.168.1.66:3000"
-HOME_ROUTER="192.168.1.254"
-HOME_DOMAIN="attlocal.net"
+# Addresses live outside git: <dotfiles>/private/homelab.env
+PRIVATE="$(cd "$CONFIG_DIR" && pwd -P)/../../private/homelab.env"
+if [ ! -f "$PRIVATE" ]; then
+    sketchybar --set "$NAME" icon.color="$MUTED" --set homelab.status label="No private/homelab.env"
+    exit 0
+fi
+source "$PRIVATE"
+HOST="$HOMELAB_HOST"
+URL="$HOMEPAGE_URL"
 STATE="${TMPDIR:-/tmp}/sketchybar_homelab"
 
 case "$SENDER" in
