@@ -146,16 +146,6 @@ homelab=(
 	script="$PLUGIN_DIR/homelab.sh"
 )
 
-focus=(
-	drawing=off
-	icon=
-	icon.color=$MOON_OFF
-	icon.padding_left=6
-	icon.padding_right=2
-	label.drawing=off
-	script="$PLUGIN_DIR/focus.sh"
-)
-
 weather=(
 	update_freq=900
 	script="$PLUGIN_DIR/weather.sh"
@@ -205,15 +195,10 @@ popup_row=(
 	label.padding_right=12
 )
 
-sketchybar --add event focus_on --add event focus_off
-
 sketchybar \
 	--add item clock right \
 	--set clock "${clock[@]}" "${hover[@]}" \
 	--subscribe clock mouse.clicked mouse.entered mouse.exited \
-	--add item focus right \
-	--set focus "${focus[@]}" \
-	--subscribe focus focus_on focus_off \
 	--add item battery right \
 	--set battery "${battery[@]}" "${hover[@]}" \
 	--subscribe battery system_woke power_source_change mouse.clicked mouse.entered mouse.exited \
@@ -235,7 +220,7 @@ sketchybar \
 	--set network.down "${graph[@]}" graph.color=$SAGE graph.fill_color=0x408c9f82 \
 	--add graph network.up right 34 \
 	--set network.up "${graph[@]}" graph.color=$GOLD graph.fill_color=0x40ebcb8b \
-	--add bracket status clock focus battery volume homelab weather brew network network.down network.up \
+	--add bracket status clock battery volume homelab weather brew network network.down network.up \
 	--set status "${status_group[@]}"
 
 # Clock popup: month calendar rows (filled by clock.sh)

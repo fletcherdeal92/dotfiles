@@ -11,5 +11,3 @@ export RED=0xffbf616a
 export HOVER=0xff2a303b
 export HOVER_OFF=0x002a303b
 export GOLD_OFF=0x00ebcb8b
-export MOON=0x99b48ead
-export MOON_OFF=0x00b48ead
