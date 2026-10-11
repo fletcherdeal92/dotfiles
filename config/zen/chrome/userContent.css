@@ -94,4 +94,18 @@
   .infobox a { color: #81A1C1 !important; }
   .infobox a:hover { color: #8C9F82 !important; }
   .search_box, #search_view .search_box { border-radius: 8px !important; box-shadow: none !important; }
+  /* Logos: shift the blue wordmark PNG to sage (url() in a user sheet won't resolve
+     against the page, so no mask); search-page SVG re-stroked */
+  img.logo { filter: grayscale(1) sepia(0.45) hue-rotate(45deg) saturate(1.1) brightness(1.15) !important; }
+  #search_logo svg [stroke="#3050ff"] { stroke: #8C9F82 !important; }
+  #search_logo svg [fill="#3050ff"] { fill: #8C9F82 !important; }
+  /* Preference toggles */
+  :root, :root.theme-dark {
+    --color-toolkit-checkbox-onoff-on-background: rgba(140, 159, 130, 0.35) !important;
+    --color-toolkit-checkbox-onoff-on-mark-background: #8C9F82 !important;
+    --color-toolkit-checkbox-onoff-on-mark-color: #0A0F14 !important;
+    --color-toolkit-checkbox-onoff-off-background: #1E222A !important;
+    --color-toolkit-checkbox-onoff-off-mark-background: #2A303B !important;
+    --color-toolkit-checkbox-onoff-off-mark-color: #4C566A !important;
+  }
 }
