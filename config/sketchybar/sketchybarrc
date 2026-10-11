@@ -141,6 +141,19 @@ graph=(
 	padding_right=1
 )
 
+hover=(
+	background.drawing=on
+	background.color=$HOVER_OFF
+	background.corner_radius=6
+	background.height=22
+)
+
+status_group=(
+	background.color=$SURFACE
+	background.corner_radius=8
+	background.height=26
+)
+
 popup_row=(
 	icon.color=$SAGE
 	icon.padding_left=12
@@ -150,26 +163,28 @@ popup_row=(
 
 sketchybar \
 	--add item clock right \
-	--set clock "${clock[@]}" \
-	--subscribe clock mouse.clicked \
+	--set clock "${clock[@]}" "${hover[@]}" \
+	--subscribe clock mouse.clicked mouse.entered mouse.exited \
 	--add item battery right \
-	--set battery "${battery[@]}" \
-	--subscribe battery system_woke power_source_change mouse.clicked \
+	--set battery "${battery[@]}" "${hover[@]}" \
+	--subscribe battery system_woke power_source_change mouse.clicked mouse.entered mouse.exited \
 	--add item volume right \
-	--set volume "${volume[@]}" \
-	--subscribe volume volume_change mouse.clicked \
+	--set volume "${volume[@]}" "${hover[@]}" \
+	--subscribe volume volume_change mouse.clicked mouse.entered mouse.exited \
 	--add item weather right \
 	--set weather "${weather[@]}" \
 	--subscribe weather system_woke \
 	--add item brew right \
-	--set brew "${brew[@]}" \
-	--subscribe brew system_woke mouse.clicked \
+	--set brew "${brew[@]}" "${hover[@]}" \
+	--subscribe brew system_woke mouse.clicked mouse.entered mouse.exited \
 	--add item network right \
 	--set network "${network[@]}" \
 	--add graph network.down right 34 \
 	--set network.down "${graph[@]}" graph.color=$SAGE graph.fill_color=0x408c9f82 \
 	--add graph network.up right 34 \
-	--set network.up "${graph[@]}" graph.color=$GOLD graph.fill_color=0x40ebcb8b
+	--set network.up "${graph[@]}" graph.color=$GOLD graph.fill_color=0x40ebcb8b \
+	--add bracket status clock battery volume weather brew network network.down network.up \
+	--set status "${status_group[@]}"
 
 # Clock popup: month calendar rows (filled by clock.sh)
 for i in 0 1 2 3 4 5 6 7; do

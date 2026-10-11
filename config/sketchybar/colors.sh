@@ -8,3 +8,5 @@ export MUTED=0xff4c566a
 export SAGE=0xff8c9f82
 export GOLD=0xffebcb8b
 export RED=0xffbf616a
+export HOVER=0xff2a303b
+export HOVER_OFF=0x002a303b

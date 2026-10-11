@@ -3,6 +3,8 @@
 # Number of outdated Homebrew packages, refreshed hourly (and on click).
 
 source "$CONFIG_DIR/colors.sh"
+source "$CONFIG_DIR/helpers/hover.sh"
+handle_hover
 
 BREW=/opt/homebrew/bin/brew
 

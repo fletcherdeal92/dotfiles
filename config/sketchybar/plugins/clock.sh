@@ -3,6 +3,8 @@
 # Bar label like "Sat 10/10  10:52 AM"; click shows this month's calendar.
 
 source "$CONFIG_DIR/colors.sh"
+source "$CONFIG_DIR/helpers/hover.sh"
+handle_hover
 
 fill_calendar() {
     local today i=0 color line args=()

@@ -4,6 +4,8 @@
 # The volume_change event supplies the new volume in $INFO.
 
 source "$CONFIG_DIR/colors.sh"
+source "$CONFIG_DIR/helpers/hover.sh"
+handle_hover
 
 SAS=/opt/homebrew/bin/SwitchAudioSource
 

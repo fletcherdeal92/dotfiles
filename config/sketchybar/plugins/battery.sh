@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 source "$CONFIG_DIR/colors.sh"
+source "$CONFIG_DIR/helpers/hover.sh"
+handle_hover
 
 fill_popup() {
     local line state time cycles nominal design health
