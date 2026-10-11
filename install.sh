@@ -36,6 +36,40 @@ LINKS=(
     ".config/lazygit"            "config/lazygit"
 )
 
+link_one() {  # link_one <absolute target> <absolute source> <label>
+    local target="$1" source="$2" label="$3"
+    if [ -L "$target" ] && [ "$(readlink "$target")" = "$source" ]; then
+        echo "  ok      $label"
+        return
+    fi
+    if [ -e "$target" ] || [ -L "$target" ]; then
+        local backup="$target.backup.$(date +%Y%m%d%H%M%S)"
+        echo "  backup  $label -> ${backup/#$HOME/~}"
+        run mv "$target" "$backup"
+    fi
+    echo "  link    $label"
+    run ln -s "$source" "$target"
+}
+
+# Zen keeps its active profile in profiles.ini ([Install…] Default=, else Default=1)
+zen_profile() {
+    local root="$HOME/Library/Application Support/zen" rel
+    [ -f "$root/profiles.ini" ] || return 1
+    rel="$(awk -F= '/^\[Install/{i=1} i && /^Default=/{print $2; exit}' "$root/profiles.ini")"
+    [ -z "$rel" ] && rel="$(awk -F= '/^Path=/{p=$2} /^Default=1/{print p; exit}' "$root/profiles.ini")"
+    [ -n "$rel" ] && echo "$root/$rel"
+}
+
+link_zen() {
+    local profile
+    if ! profile="$(zen_profile)"; then
+        echo "  skip    Zen (no profile yet — launch Zen once, then rerun with --links)"
+        return
+    fi
+    link_one "$profile/chrome" "$DOTFILES/config/zen/chrome" "Zen chrome/ ($(basename "$profile"))"
+    link_one "$profile/user.js" "$DOTFILES/config/zen/user.js" "Zen user.js"
+}
+
 link_all() {
     say "Linking configs"
     run mkdir -p "$HOME/.config"
@@ -54,6 +88,7 @@ link_all() {
         echo "  link    ~/${LINKS[i]} -> ${LINKS[i + 1]}"
         run ln -s "$source" "$target"
     done
+    link_zen
 }
 
 if [ $LINKS_ONLY = 1 ]; then link_all; exit 0; fi

@@ -1,0 +1,20 @@
+/* Internal pages in the Severance palette */
+@-moz-document url("about:blank"), url("about:newtab"), url("about:home"), url("about:privatebrowsing") {
+  html, body {
+    background-color: #0A0F14 !important;
+    color: #C5C8C6 !important;
+  }
+}
+@-moz-document url-prefix("about:") {
+  :root {
+    --in-content-page-background: #0A0F14 !important;
+    --in-content-page-color: #C5C8C6 !important;
+    --in-content-box-background: #1E222A !important;
+    --in-content-border-color: #2A303B !important;
+    --in-content-primary-button-background: #8C9F82 !important;
+    --in-content-primary-button-background-hover: #A3BE8C !important;
+    --in-content-primary-button-text-color: #0A0F14 !important;
+    --in-content-link-color: #81A1C1 !important;
+    --in-content-accent-color: #8C9F82 !important;
+  }
+}

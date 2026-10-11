@@ -42,6 +42,7 @@ cask "hiddenbar"
 cask "claude"
 cask "claude-code"
 cask "spotify"
+cask "zen"
 cask "via"
 brew "teamookla/speedtest/speedtest", trusted: true
 
