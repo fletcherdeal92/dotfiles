@@ -1,0 +1,99 @@
+/* Homepage (gethomepage.dev) — Severance palette.
+   Deployed by config/homepage/deploy.sh. Remaps Homepage's theme scale so every
+   built-in Tailwind colour follows, then calms cards and status colours. */
+
+:root, .theme-slate, .dark {
+  --color-50: 236 239 244;
+  --color-100: 229 233 240;
+  --color-200: 197 200 198;   /* #C5C8C6 text */
+  --color-300: 163 169 178;
+  --color-400: 123 131 148;
+  --color-500: 76 86 106;     /* #4C566A muted */
+  --color-600: 59 66 82;
+  --color-700: 42 48 59;
+  --color-800: 30 34 42;      /* #1E222A surface */
+  --color-900: 10 15 20;      /* #0A0F14 background */
+  --bg-color: 10 15 20;
+  --color-logo-start: 140 159 130;
+  --color-logo-stop: 76 86 106;
+
+  --sev-bg: #0A0F14;
+  --sev-surface: #1E222A;
+  --sev-surface2: #2A303B;
+  --sev-text: #C5C8C6;
+  --sev-muted: #4C566A;
+  --sev-sage: #8C9F82;
+  --sev-gold: #EBCB8B;
+  --sev-red: #BF616A;
+}
+
+html, body, #page_wrapper {
+  background-color: var(--sev-bg) !important;
+  color: var(--sev-text);
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", ui-monospace, monospace !important;
+}
+
+/* Solid background instead of the photo */
+#background { background-image: none !important; background-color: var(--sev-bg) !important; }
+
+/* Group headings */
+.service-group-name, .bookmark-group-name {
+  color: var(--sev-muted) !important;
+  letter-spacing: 0.04em;
+}
+
+/* Service cards: flat surface, subtle radius, sage hint on hover */
+.service-card {
+  background-color: var(--sev-surface) !important;
+  border: 1px solid transparent;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.service-card:hover {
+  background-color: var(--sev-surface2) !important;
+  border-color: rgba(140, 159, 130, 0.45);
+}
+.service-name { color: var(--sev-text) !important; }
+.service-description { color: var(--sev-muted) !important; }
+.service-card:hover .service-name { color: var(--sev-sage) !important; }
+.service-tag { background-color: var(--sev-surface2) !important; color: var(--sev-muted) !important; }
+
+/* Bookmarks */
+.bookmark > a, .bookmark .bookmark-text {
+  background-color: var(--sev-surface) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+.bookmark-icon { background-color: var(--sev-surface2) !important; }
+.bookmark:hover .bookmark-name { color: var(--sev-sage) !important; }
+.bookmark-description { color: var(--sev-muted) !important; }
+
+/* Widgets */
+#information-widgets, .widget-container { color: var(--sev-text); }
+.widget-inner-icon, .information-widget-icon { color: var(--sev-sage) !important; }
+.information-widget-search input {
+  background-color: var(--sev-surface) !important;
+  border-radius: 8px;
+}
+
+/* Status: sage OK, gold warning, red down */
+.docker-status-running, .docker-status-healthy { color: var(--sev-sage) !important; background-color: rgba(140, 159, 130, 0.12) !important; }
+.docker-status-starting, .docker-status-unhealthy, .docker-status-partial { color: var(--sev-gold) !important; background-color: rgba(235, 203, 139, 0.12) !important; }
+.docker-status-exited, .docker-status-not-found, .docker-status-error, .docker-status-down { color: var(--sev-red) !important; background-color: rgba(191, 97, 106, 0.12) !important; }
+
+/* Stats panels inside cards */
+.service-container-stats, .service-block { background-color: var(--sev-bg) !important; border-radius: 6px; }
+
+::selection { background: rgba(76, 86, 106, 0.6); }
+#footer, #version { opacity: 0.35; }
+
+/* Homepage's stock reds (API errors, calendar weekends) → Severance red */
+.bg-rose-900\/80, .hover\:bg-rose-900\/95:hover {
+  background-color: rgba(191, 97, 106, 0.16) !important;
+  color: var(--sev-red) !important;
+}
+.text-red-500 { color: var(--sev-red) !important; }
+.text-red-500\/40 { color: rgba(191, 97, 106, 0.4) !important; }
+.text-rose-900 { color: var(--sev-red) !important; }

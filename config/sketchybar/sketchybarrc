@@ -222,7 +222,7 @@ sketchybar \
 	--subscribe volume volume_change mouse.clicked mouse.entered mouse.exited \
 	--add item homelab right \
 	--set homelab "${homelab[@]}" "${hover[@]}" \
-	--subscribe homelab system_woke mouse.clicked mouse.entered mouse.exited \
+	--subscribe homelab system_woke wifi_change mouse.clicked mouse.entered mouse.exited \
 	--add item weather right \
 	--set weather "${weather[@]}" \
 	--subscribe weather system_woke \
