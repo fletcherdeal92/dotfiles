@@ -20,7 +20,7 @@
 }
 
 /* SearXNG (home server, port 8888) — matched by pattern so the tailnet name
-   stays out of git. Calm results on bg, sage hover, muted URLs, gold answers. */
+   stays out of git. Results on surface cards, sage hover, muted URLs, gold answers. */
 @-moz-document regexp("https?://([^/]+\\.ts\\.net|192\\.168\\.[0-9.]+|localhost):8888/.*") {
   :root, :root.theme-dark {
     --color-base-background: #0A0F14 !important;
@@ -45,14 +45,14 @@
     --color-btn-font: #0A0F14 !important;
     --color-categories-item-border-selected: #8C9F82 !important;
     --color-categories-item-selected-font: #8C9F82 !important;
-    --color-result-background: transparent !important;
+    --color-result-background: #1E222A !important;
     --color-result-border: transparent !important;
     --color-result-link-font: #C5C8C6 !important;
     --color-result-link-font-highlight: #8C9F82 !important;
     --color-result-link-visited-font: #9AA0A8 !important;
     --color-result-url-font: #4C566A !important;
-    --color-url-font: #4C566A !important;
-    --color-url-visited-font: #4C566A !important;
+    --color-url-font: #6B7385 !important;
+    --color-url-visited-font: #6B7385 !important;
     --color-result-engines-font: #4C566A !important;
     --color-result-publishdate-font: #4C566A !important;
     --color-result-description-highlight-font: #E5E9F0 !important;
@@ -76,6 +76,16 @@
   .result h3 a:hover { color: #8C9F82 !important; }
   .result .content { color: #9AA0A8 !important; }
   .result .highlight { color: #E5E9F0 !important; }
+  /* Each result on its own card */
+  #urls > .result:not(.result-images) {
+    background: #1E222A !important;
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    padding: 14px 18px !important;
+    margin: 0 0 12px 0 !important;
+    transition: border-color 150ms ease;
+  }
+  #urls > .result:not(.result-images):hover { border-color: rgba(140, 159, 130, 0.45) !important; }
   /* Instant answers + infobox in gold */
   .answer { border-left: 2px solid #EBCB8B !important; border-radius: 6px !important; padding-left: 1rem !important; }
   .answer a, .answer-url { color: #EBCB8B !important; }
