@@ -66,8 +66,28 @@ link_zen() {
         echo "  skip    Zen (no profile yet — launch Zen once, then rerun with --links)"
         return
     fi
-    link_one "$profile/chrome" "$DOTFILES/config/zen/chrome" "Zen chrome/ ($(basename "$profile"))"
+    copy_zen_chrome "$profile/chrome"
     write_zen_userjs "$profile/user.js"
+}
+
+# Zen ignores userContent.css when it's a symlink (file or folder) — web content
+# is rendered in sandboxed processes — so copy the stylesheets in instead.
+# Rerun `./install.sh --links` after editing config/zen/chrome/*.css.
+copy_zen_chrome() {
+    local dir="$1" f
+    if [ -L "$dir" ]; then
+        echo "  unlink  Zen chrome/ (was a symlink)"
+        run rm "$dir"
+    fi
+    run mkdir -p "$dir"
+    for f in userChrome.css userContent.css; do
+        if [ -f "$dir/$f" ] && cmp -s "$DOTFILES/config/zen/chrome/$f" "$dir/$f"; then
+            echo "  ok      Zen chrome/$f"
+        else
+            echo "  copy    Zen chrome/$f"
+            run cp "$DOTFILES/config/zen/chrome/$f" "$dir/$f"
+        fi
+    done
 }
 
 # user.js can't read env files, so build it: repo prefs + private homepage URL
