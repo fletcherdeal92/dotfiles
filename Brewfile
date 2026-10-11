@@ -46,6 +46,10 @@ cask "zen"
 cask "via"
 brew "teamookla/speedtest/speedtest", trusted: true
 
+# ---- App Store (needs `mas` and an App Store sign-in) ----
+brew "mas"
+mas "Tailscale", id: 1475387142
+
 # ---- VS Code extensions ----
 vscode "continue.continue"
 vscode "ms-vscode-remote.remote-ssh"

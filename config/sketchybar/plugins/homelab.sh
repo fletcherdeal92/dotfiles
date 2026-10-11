@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
-# Homelab status dot: sage = VM up + Homepage 200, gold = VM up but Homepage
-# down, red = VM unreachable, muted = away from home (check skipped).
-# Home is recognised by the DHCP router + domain: Wi-Fi SSIDs and the ARP table
-# are hidden from background services, so the router's MAC isn't an option.
-# (Another network with the same AT&T defaults would show red, not muted.)
+# Homelab status dot over Tailscale: sage = VM up + Homepage 200, gold = VM up
+# but Homepage down, red = VM unreachable, muted = Tailscale disconnected.
 
 source "$CONFIG_DIR/colors.sh"
 source "$CONFIG_DIR/helpers/hover.sh"
@@ -17,8 +14,9 @@ if [ ! -f "$PRIVATE" ]; then
     exit 0
 fi
 source "$PRIVATE"
-HOST="$HOMELAB_HOST"
+HOST="$TAILNET_HOST"
 URL="$HOMEPAGE_URL"
+TAILSCALE="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 STATE="${TMPDIR:-/tmp}/sketchybar_homelab"
 
 case "$SENDER" in
@@ -32,13 +30,10 @@ mouse.clicked)
     ;;
 esac
 
-iface="$(route -n get default 2>/dev/null | awk '/interface:/ {print $2}')"
-lease="$(ipconfig getpacket "$iface" 2>/dev/null)"
-router="$(printf '%s\n' "$lease" | sed -n 's/^router (ip_mult): {\([^,}]*\).*/\1/p')"
-domain="$(printf '%s\n' "$lease" | sed -n 's/^domain_name (string): //p')"
+state="$("$TAILSCALE" status --json 2>/dev/null | sed -n 's/.*"BackendState": *"\([A-Za-z]*\)".*/\1/p' | head -1)"
 
-if [ "$router" != "$HOME_ROUTER" ] || [ "$domain" != "$HOME_DOMAIN" ]; then
-    color="$MUTED"; status="Away from home — check skipped"
+if [ "$state" != "Running" ]; then
+    color="$MUTED"; status="Tailscale disconnected — check skipped"
 elif ! ping -c1 -t1 "$HOST" >/dev/null 2>&1; then
     color="$RED"; status="VM unreachable ($HOST)"
 elif [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 "$URL")" = "200" ]; then
