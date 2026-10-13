@@ -164,24 +164,6 @@ wud=(
 	script="$PLUGIN_DIR/wud.sh"
 )
 
-network=(
-	update_freq=2
-	icon.drawing=off
-	label.font="JetBrainsMono Nerd Font:Bold:8.0"
-	label.width=54
-	label.align=right
-	script="$PLUGIN_DIR/network.sh"
-)
-
-graph=(
-	background.drawing=on
-	background.color=0x00000000
-	background.height=18
-	graph.line_width=1
-	padding_left=1
-	padding_right=1
-)
-
 hover=(
 	background.drawing=on
 	background.color=$HOVER_OFF
@@ -224,13 +206,7 @@ sketchybar \
 	--add item wud right \
 	--set wud "${wud[@]}" "${hover[@]}" \
 	--subscribe wud system_woke mouse.clicked mouse.entered mouse.exited \
-	--add item network right \
-	--set network "${network[@]}" \
-	--add graph network.down right 34 \
-	--set network.down "${graph[@]}" graph.color=$SAGE graph.fill_color=0x408c9f82 \
-	--add graph network.up right 34 \
-	--set network.up "${graph[@]}" graph.color=$GOLD graph.fill_color=0x40ebcb8b \
-	--add bracket status clock battery volume homelab weather brew wud network network.down network.up \
+	--add bracket status clock battery volume homelab weather brew wud \
 	--set status "${status_group[@]}"
 
 # Clock popup: month calendar rows (filled by clock.sh)
