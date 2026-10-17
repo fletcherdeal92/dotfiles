@@ -3,16 +3,18 @@
 #   ./install.sh            install packages, link configs, start services
 #   ./install.sh --dry-run  show what would happen, change nothing
 #   ./install.sh --links    only (re)create symlinks
+#   ./install.sh --dynamic-wallpaper   also build + set the solar dynamic topo wallpaper
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Rebuild with: uv run wallpapers/topo_tallulah.py
 WALLPAPER="$DOTFILES/wallpapers/topo-tallulah.png"
-DRY=0; LINKS_ONLY=0
+DRY=0; LINKS_ONLY=0; DYNAMIC_WALLPAPER=0
 for arg in "$@"; do
     case "$arg" in
     --dry-run) DRY=1 ;;
     --links) LINKS_ONLY=1 ;;
+    --dynamic-wallpaper) DYNAMIC_WALLPAPER=1 ;;
     *) echo "unknown option: $arg" >&2; exit 1 ;;
     esac
 done
@@ -159,6 +161,13 @@ run brew services start borders
 
 say "Installing VS Code Severance theme"
 run python3 "$DOTFILES/config/vscode/install-theme.py"
+
+if [ $DYNAMIC_WALLPAPER = 1 ]; then
+    # Generated, gitignored (~45 MB): 18 frames whose hillshade follows the real sun
+    say "Building solar dynamic wallpaper (first run downloads lidar + builds wallpapper)"
+    run uv run --python 3.12 "$DOTFILES/wallpapers/topo_tallulah.py" --dynamic
+    WALLPAPER="$DOTFILES/wallpapers/topo-tallulah-dynamic.heic"
+fi
 
 say "Setting wallpaper"
 run osascript -e "tell application \"System Events\" to set picture of every desktop to POSIX file \"$WALLPAPER\""

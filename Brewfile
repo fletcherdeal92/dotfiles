@@ -28,6 +28,8 @@ brew "tree"
 brew "btop"
 brew "fastfetch"
 brew "uv"                       # runs wallpapers/topo_tallulah.py
+# wallpapper (solar .heic packer) is built on demand by topo_tallulah.py --dynamic:
+# its tap needs full Xcode + `brew trust`, so the script builds the pinned release itself
 
 # ---- git ----
 brew "git"

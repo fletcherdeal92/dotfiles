@@ -2,3 +2,5 @@
 wallpapers/cache/
 config/zen/chrome/zen-themes.css
 private/
+wallpapers/*.heic
+wallpapers/*.preview.png
