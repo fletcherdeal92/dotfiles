@@ -1,0 +1,150 @@
+/* Miniflux — Severance palette, matching config/homepage/custom.css.
+   Deployed by config/miniflux/deploy.sh into the user's Settings → Custom CSS (with the
+   dark_serif theme). Interface in JetBrains Mono; article text stays in the theme's serif. */
+
+:root {
+  --sev-bg: #0A0F14;
+  --sev-surface: #1E222A;
+  --sev-surface2: #2A303B;
+  --sev-text: #C5C8C6;
+  --sev-bright: #E5E9F0;
+  --sev-dim: #7B8394;
+  --sev-muted: #4C566A;
+  --sev-sage: #8C9F82;
+  --sev-blue: #81A1C1;
+  --sev-teal: #8FBCBB;
+  --sev-gold: #EBCB8B;
+  --sev-red: #BF616A;
+  --sev-purple: #B48EAD;
+
+  --font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", ui-monospace, monospace;
+
+  --body-color: var(--sev-text);
+  --body-background: var(--sev-bg);
+  --hr-border-color: var(--sev-surface2);
+  --title-color: var(--sev-bright);
+
+  --link-color: var(--sev-blue);
+  --link-focus-color: var(--sev-teal);
+  --link-hover-color: var(--sev-teal);
+  --link-visited-color: var(--sev-purple);
+
+  --header-list-border-color: var(--sev-surface2);
+  --header-link-color: var(--sev-dim);
+  --header-link-focus-color: var(--sev-sage);
+  --header-link-hover-color: var(--sev-sage);
+  --header-active-link-color: var(--sev-sage);
+  --page-header-title-border-color: var(--sev-surface2);
+  --logo-color: var(--sev-text);
+  --logo-hover-color-span: var(--sev-sage);
+
+  --table-border-color: var(--sev-surface2);
+  --table-th-background: var(--sev-surface);
+  --table-th-color: var(--sev-dim);
+  --table-tr-hover-background-color: var(--sev-surface);
+  --table-tr-hover-color: var(--sev-text);
+
+  --button-primary-background: var(--sev-sage);
+  --button-primary-border-color: var(--sev-sage);
+  --button-primary-color: var(--sev-bg);
+  --button-primary-focus-background: var(--sev-teal);
+  --button-primary-focus-border-color: var(--sev-teal);
+
+  --input-background: var(--sev-surface);
+  --input-border: 1px solid var(--sev-surface2);
+  --input-color: var(--sev-text);
+  --input-placeholder-color: var(--sev-muted);
+  --input-focus-color: var(--sev-bright);
+  --input-focus-border-color: var(--sev-sage);
+  --input-focus-box-shadow: 0 0 0 2px rgba(140, 159, 130, 0.25);
+
+  --alert-color: var(--sev-gold);
+  --alert-background-color: rgba(235, 203, 139, 0.10);
+  --alert-border-color: rgba(235, 203, 139, 0.35);
+  --alert-success-color: var(--sev-sage);
+  --alert-success-background-color: rgba(140, 159, 130, 0.12);
+  --alert-success-border-color: rgba(140, 159, 130, 0.4);
+  --alert-error-color: var(--sev-red);
+  --alert-error-background-color: rgba(191, 97, 106, 0.12);
+  --alert-error-border-color: rgba(191, 97, 106, 0.4);
+  --alert-info-color: var(--sev-blue);
+  --alert-info-background-color: rgba(129, 161, 193, 0.10);
+  --alert-info-border-color: rgba(129, 161, 193, 0.35);
+
+  --panel-background: var(--sev-surface);
+  --panel-border-color: var(--sev-surface2);
+  --panel-color: var(--sev-text);
+  --modal-background: var(--sev-surface);
+  --modal-color: var(--sev-text);
+  --modal-box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+
+  --pagination-link-color: var(--sev-dim);
+  --pagination-border-color: var(--sev-surface2);
+
+  --category-color: var(--sev-dim);
+  --category-background-color: var(--sev-surface);
+  --category-border-color: var(--sev-surface2);
+  --category-link-color: var(--sev-dim);
+  --category-link-hover-color: var(--sev-sage);
+  --category-has-unread-background-color: var(--sev-surface);
+  --category-has-unread-border-color: rgba(140, 159, 130, 0.5);
+  --feed-has-unread-background-color: var(--sev-surface);
+  --feed-has-unread-border-color: rgba(140, 159, 130, 0.5);
+  --feed-parsing-error-background-color: rgba(191, 97, 106, 0.12);
+  --feed-parsing-error-border-color: rgba(191, 97, 106, 0.5);
+  --parsing-error-color: var(--sev-red);
+
+  --item-border-color: var(--sev-surface2);
+  --item-meta-li-color: var(--sev-muted);
+  --item-meta-focus-color: var(--sev-dim);
+  --item-status-read-title-link-color: var(--sev-muted);
+  --item-status-read-title-focus-color: var(--sev-dim);
+  --current-item-border-color: var(--sev-sage);
+  --current-item-border-width: 1px;
+  --current-item-box-shadow: none;
+  --counter-color: var(--sev-muted);
+  --keyboard-shortcuts-li-color: var(--sev-dim);
+
+  --entry-header-border-color: var(--sev-surface2);
+  --entry-header-title-link-color: var(--sev-bright);
+  --entry-content-color: var(--sev-text);
+  --entry-content-quote-color: var(--sev-dim);
+  --entry-content-code-color: var(--sev-teal);
+  --entry-content-code-background: var(--sev-surface);
+  --entry-content-code-border-color: var(--sev-surface2);
+  --entry-content-abbr-border-color: var(--sev-muted);
+  --entry-content-aside-border-color: var(--sev-surface2);
+  --entry-enclosure-border-color: var(--sev-surface2);
+}
+
+html { color-scheme: dark; }
+::selection { background: rgba(76, 86, 106, 0.6); }
+
+/* Breathing room: Miniflux only pads the page by 3px until it is wider than 900px */
+body {
+  box-sizing: border-box;
+  padding-inline: clamp(16px, 3vw, 32px);
+}
+
+/* Buttons and form fields don't inherit the page font by default */
+button, input, select, textarea { font-family: inherit; }
+
+/* List items: flat surface cards like Homepage's, sage outline on the selected one */
+.item {
+  background: var(--sev-surface);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: border-color 150ms ease;
+}
+.item:hover { border-color: rgba(140, 159, 130, 0.25); }
+.item.current-item { border-color: var(--sev-sage); box-shadow: none; }
+.item-title a { color: var(--sev-text); }
+.item-title a:hover, .item-title a:focus { color: var(--sev-sage); }
+
+/* Article title: monospace like the interface, a little lighter than the theme's bold */
+.entry-header h1 { font-weight: 600; letter-spacing: -0.01em; }
+
+/* Article images sit on the page instead of glaring */
+.entry-content img { border-radius: 6px; }
+.entry-content blockquote { border-left-color: var(--sev-muted); }

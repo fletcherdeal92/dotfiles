@@ -1,0 +1,89 @@
+/* Glance — Severance palette, matching config/homepage/custom.css.
+   Deployed by config/glance/deploy.sh to the server's glance/assets/ and loaded via
+   theme.custom-css-file. :root:root outranks Glance's inline theme-style block. */
+
+:root:root {
+  --sev-bg: #0A0F14;
+  --sev-surface: #1E222A;
+  --sev-surface2: #2A303B;
+  --sev-text: #C5C8C6;
+  --sev-bright: #E5E9F0;
+  --sev-dim: #7B8394;
+  --sev-muted: #4C566A;
+  --sev-sage: #8C9F82;
+  --sev-blue: #81A1C1;
+  --sev-gold: #EBCB8B;
+  --sev-red: #BF616A;
+
+  --color-background: var(--sev-bg);
+  --color-widget-background: var(--sev-surface);
+  --color-widget-background-highlight: var(--sev-surface2);
+  --color-widget-content-border: transparent;
+  --color-separator: var(--sev-surface2);
+  --color-popover-background: var(--sev-surface);
+  --color-popover-border: var(--sev-surface2);
+  --color-progress-border: var(--sev-muted);
+  --color-progress-value: var(--sev-sage);
+
+  --color-text-highlight: var(--sev-bright);
+  --color-text-paragraph: var(--sev-text);
+  --color-text-base: var(--sev-text);
+  --color-text-base-muted: var(--sev-dim);
+  --color-text-subdue: var(--sev-dim);
+
+  --color-primary: var(--sev-sage);
+  --color-positive: var(--sev-sage);
+  --color-negative: var(--sev-red);
+  --bookmarks-group-color: var(--sev-muted);
+
+  --border-radius: 8px;
+  --content-bounds-padding: clamp(16px, 2.5vw, 32px);
+}
+
+body {
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", ui-monospace, monospace;
+  background-color: var(--sev-bg);
+}
+::selection { background: rgba(76, 86, 106, 0.6); }
+
+/* Cards: flat surface like Homepage's service cards */
+.widget-content:not(.widget-content-frameless), .widget-content-frame {
+  box-shadow: none;
+  border: 1px solid transparent;
+  transition: border-color 150ms ease;
+}
+.widget-content:not(.widget-content-frameless):hover { border-color: rgba(140, 159, 130, 0.25); }
+
+/* Section headings: muted and spaced, like Homepage's group names */
+.widget-header { color: var(--sev-muted); letter-spacing: 0.04em; }
+.widget-header a:hover { color: var(--sev-sage); }
+
+/* Tabs */
+.widget-group-title { color: var(--sev-muted); }
+.widget-group-title:hover:not(.widget-group-title-current) { color: var(--sev-dim); }
+.widget-group-title-current { color: var(--sev-sage); border-bottom-color: var(--sev-sage); }
+
+/* Headlines read as text; sage only on hover */
+.color-primary-if-not-visited:not(:visited) { color: var(--sev-text); }
+a.title:hover, .color-primary-if-not-visited:hover { color: var(--sev-sage); }
+.list-horizontal-text a:hover { color: var(--sev-blue); }
+.color-highlight { color: var(--sev-bright); }
+
+/* Search */
+.widget-type-search .widget-content { transition: border-color 150ms ease; }
+.widget-type-search .widget-content:focus-within { border-color: rgba(140, 159, 130, 0.6); }
+.search-input::placeholder { color: var(--sev-muted); }
+
+/* Bookmarks: muted arrows, sage on hover */
+.bookmarks-link:hover { color: var(--sev-sage); }
+
+/* Calendar: today in sage, spillover days quieter */
+.calendar-current-date {
+  background: rgba(140, 159, 130, 0.16) !important;
+  color: var(--sev-sage) !important;
+}
+.calendar-spillover-date { color: var(--sev-muted); }
+
+/* Footer and the video row's thumbnails stay quiet */
+.footer { opacity: 0.35; }
+.video-thumbnail { filter: saturate(0.85); }
