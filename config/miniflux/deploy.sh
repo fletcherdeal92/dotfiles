@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Deploy severance.css (Severance) to Miniflux as the user's Custom CSS, with the dark serif theme.
+# Deploy severance.css (Severance) to Miniflux as the user's Custom CSS, with the dark serif theme,
+# plus block-rules.txt as the user's global Entry Blocking Rules (one Miniflux rule per line).
 #   ./deploy.sh            push severance.css via the Miniflux API
 #   ./deploy.sh --dry-run  show what would happen
 # Miniflux keeps custom CSS per user in its database (Settings → Custom CSS); this overwrites it.
@@ -22,9 +23,10 @@ BACKUP="$HOME/.cache/rice-miniflux/stylesheet.$(date +%Y%m%d%H%M%S).css"
 say "Backing up the current Custom CSS to ${BACKUP/#$HOME/~}"
 if [ $DRY = 0 ]; then mkdir -p "$(dirname "$BACKUP")"; jq -r .stylesheet <<<"$ME" > "$BACKUP"; fi
 
-say "Setting theme $THEME and Custom CSS from severance.css"
-BODY="$(jq -n --rawfile css "$HERE/severance.css" --arg theme "$THEME" '{theme: $theme, stylesheet: $css}')"
+say "Setting theme $THEME, Custom CSS from severance.css, blocking rules from block-rules.txt"
+BODY="$(jq -n --rawfile css "$HERE/severance.css" --rawfile rules "$HERE/block-rules.txt" --arg theme "$THEME" \
+    '{theme: $theme, stylesheet: $css, block_filter_entry_rules: ($rules | rtrimstr("\n"))}')"
 if [ $DRY = 1 ]; then echo "  would PUT $MINIFLUX_URL/v1/users/$ID ($(wc -c < "$HERE/severance.css" | tr -d ' ') bytes of CSS)"
-else api -X PUT -d "$BODY" "$MINIFLUX_URL/v1/users/$ID" | jq -r '"  saved: theme \(.theme), \(.stylesheet | length) bytes of CSS"'; fi
+else api -X PUT -d "$BODY" "$MINIFLUX_URL/v1/users/$ID" | jq -r '"  saved: theme \(.theme), \(.stylesheet | length) bytes of CSS, \(.block_filter_entry_rules | split("\n") | length) blocking rules"'; fi
 
 say "Done — reload Miniflux in the browser"

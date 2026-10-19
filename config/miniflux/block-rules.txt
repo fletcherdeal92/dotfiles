@@ -1,0 +1,2 @@
+EntryTag=(?i)^(sports?|nfl|nba|wnba|mlb|nhl|mls|soccer|football|college football|college basketball|basketball|baseball|hockey|golf|tennis|olympics|formula 1|f1|nascar|ufc|mma|boxing|.*\b(nfl|nba|wnba|mlb|nhl)\b.*|.*playoffs?|.*world series.*|.*super bowl.*|atlanta (hawks|braves|falcons|dream|united))$
+EntryTitle=(?i)\b(braves|falcons|atlanta hawks|atlanta dream|atlanta united|super bowl|world series|nfl|nba|wnba|mlb|nhl|mls|quarterback|touchdown|home run)\b
