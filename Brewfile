@@ -45,7 +45,6 @@ cask "claude"
 cask "claude-code"
 cask "spotify"
 cask "zen"
-cask "via"
 brew "teamookla/speedtest/speedtest", trusted: true
 
 # ---- App Store (needs `mas` and an App Store sign-in) ----
