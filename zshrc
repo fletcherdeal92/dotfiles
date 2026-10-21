@@ -8,6 +8,9 @@ alias la="eza -la --icons"
 alias cat="bat"
 alias find="fd"
 
+# Homelab: update every Docker stack on the server (`dup --dry-run` to preview)
+alias dup="$HOME/.local/bin/dup"
+
 # eza only reads ~/.config on macOS when told to
 export EZA_CONFIG_DIR="$HOME/.config/eza"
 export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"

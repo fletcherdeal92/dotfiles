@@ -104,7 +104,7 @@ icon and window title, which scrolls smoothly when it's longer than 40 character
 | Homelab | Sage = server and dashboard up · gold = dashboard down · red = unreachable · dim = Tailscale off | Opens the dashboard |
 | Weather | wttr.in, °F, every 15 min | — |
 | Homebrew | Outdated package count, hourly | Refresh |
-| What's Up Docker | Containers with image updates | `current → available` list |
+| What's Up Docker | Real new versions only (rebuilds ignored). Hidden at 0, muted when fresh, gold once one waits 3+ days | `current → available · days` list |
 
 Notes for editing: plugins run under macOS's `/bin/bash` 3.2 (no associative arrays) and don't
 inherit variables from `sketchybarrc`, so each one sources `colors.sh`. Custom app icons go in
@@ -166,6 +166,24 @@ of it:
 - **Research** collects Digital Library of Georgia search feeds and changedetection.io watches.
 - **Blocking rules** (`config/miniflux/block-rules.txt`) hide sports across every feed, by tag
   and by team or league in the title.
+
+### Updating containers: `dup`
+
+```bash
+dup --dry-run    # which stacks would change: new images or edited compose files
+dup              # pull every stack, recreate only what changed, prune, rescan WUD
+```
+
+`bin/dup` runs from the Mac over SSH. It works through each compose folder in `~/docker`,
+keeps going if one fails, and ends with a summary. The skip list at the top of the script never
+touches Home Assistant or its Matter server, and it asks before restarting Dockge. Afterwards it
+prunes dangling images, asks WUD to rescan, and refreshes the bar, so the whale clears right away.
+
+**What counts as an update.** WUD stays notify-only. `server/bin/wud-classify` runs on the server
+and keeps only *real* version changes: a rebuild counts only if the image's version label changes
+(linuxserver's `-lsNNN` build numbers are ignored), and release-only `:latest` images count on any
+new build. WUD labels in the compose files mark rolling or major-pinned images (SearXNG, gluetun,
+Valkey 8, Postgres 18) as never counted, and WUD is set to exclude Home Assistant entirely.
 
 ### Theming the server apps from here
 

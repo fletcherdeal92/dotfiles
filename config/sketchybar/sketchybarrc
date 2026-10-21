@@ -203,9 +203,10 @@ sketchybar \
 	--add item brew right \
 	--set brew "${brew[@]}" "${hover[@]}" \
 	--subscribe brew system_woke mouse.clicked mouse.entered mouse.exited \
+	--add event wud_refresh \
 	--add item wud right \
 	--set wud "${wud[@]}" "${hover[@]}" \
-	--subscribe wud system_woke mouse.clicked mouse.entered mouse.exited \
+	--subscribe wud system_woke wud_refresh mouse.clicked mouse.entered mouse.exited \
 	--add bracket status clock battery volume homelab weather brew wud \
 	--set status "${status_group[@]}"
 

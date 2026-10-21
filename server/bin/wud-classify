@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# wud-classify — which of What's Up Docker's pending updates are real new versions?
+# Runs on the server (it needs docker buildx); the Sketchybar whale pipes WUD's
+# /api/containers JSON in over ssh. Installed to ~/.local/bin by server/deploy.sh.
+#
+# Output, one TSV line per container WUD flags:
+#   name  counted(1|0)  from  to  since(epoch, may be empty)
+#
+# - Tag updates (a newer tag matched the container's tag filters) always count.
+# - Digest updates (same tag, new image) count when the image's version label changes,
+#   ignoring linuxserver's -lsNNN build suffix. Images without a version label count:
+#   those projects only republish :latest (or :1) for a release.
+# Remote labels come from the registry without pulling, cached per digest in
+# ~/.cache/wud-classify, so each new image is looked up once.
+set -uo pipefail
+
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/wud-classify"
+mkdir -p "$CACHE"
+
+norm() {  # 4.0.20.3014-ls328 -> 4.0.20.3014, v2.5.0 -> 2.5.0, latest -> ""
+    local v="${1#v}"
+    v="$(sed -E 's/-ls[0-9]+$//' <<<"$v")"
+    [ "$v" = "latest" ] && v=""
+    printf '%s' "$v"
+}
+
+remote_version() {  # remote_version <ref> <digest>; prints the version label, fails if the lookup fails
+    local file="$CACHE/${2#sha256:}" out
+    if [ ! -f "$file" ]; then
+        out="$(docker buildx imagetools inspect "$1@$2" --format '{{json .Image}}' 2>/dev/null)" || return 1
+        jq -r 'if has("linux/arm64") then .["linux/arm64"] else . end
+               | .config.Labels["org.opencontainers.image.version"] // ""' <<<"$out" > "$file.tmp" \
+            && mv "$file.tmp" "$file" || return 1
+    fi
+    cat "$file"
+}
+
+jq -r '.[] | select(.updateAvailable)
+    | (.image.registry.url // "" | sub("^https?://"; "") | sub("/v2/?$"; "")
+       | if . == "" or test("docker\\.io$") then "docker.io" else . end) as $host
+    | [ .name, (.updateKind.kind // ""), ($host + "/" + .image.name),
+        .image.tag.value, (.result.tag // ""), (.result.digest // ""), (.result.created // "") ]
+    | @tsv' |
+while IFS=$'\t' read -r name kind ref tag newtag digest created; do
+    since=""
+    [ -n "$created" ] && since="$(date -d "$created" +%s 2>/dev/null || true)"
+
+    if [ "$kind" = "tag" ]; then
+        printf '%s\t1\t%s\t%s\t%s\n' "$name" "$tag" "$newtag" "$since"
+        continue
+    fi
+
+    local_v="$(norm "$(docker inspect -f '{{index .Config.Labels "org.opencontainers.image.version"}}' "$name" 2>/dev/null)")"
+    if remote_raw="$(remote_version "$ref" "$digest")"; then
+        remote_v="$(norm "$remote_raw")"
+    else
+        remote_v="?"   # lookup failed: count it rather than hide something real
+    fi
+
+    if [ -n "$local_v" ] && [ -n "$remote_v" ] && [ "$remote_v" != "?" ]; then
+        counted=0; [ "$local_v" != "$remote_v" ] && counted=1
+        printf '%s\t%s\t%s\t%s\t%s\n' "$name" "$counted" "$local_v" "$remote_v" "$since"
+    else
+        # No version label: a new image on a release-only tag is a release
+        build="new build"; [ -n "$created" ] && build="new build $(date -d "$created" +%m/%d 2>/dev/null)"
+        printf '%s\t1\t%s\t%s\t%s\n' "$name" "${local_v:-$tag}" "${remote_v:-$build}" "$since"
+    fi
+done

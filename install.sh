@@ -36,6 +36,7 @@ LINKS=(
     ".config/btop"               "config/btop"
     ".config/fastfetch"          "config/fastfetch"
     ".config/lazygit"            "config/lazygit"
+    ".local/bin/dup"             "bin/dup"   # update every Docker stack on the server
 )
 
 link_one() {  # link_one <absolute target> <absolute source> <label>
@@ -124,7 +125,7 @@ ensure_private() {
 link_all() {
     say "Linking configs"
     ensure_private
-    run mkdir -p "$HOME/.config"
+    run mkdir -p "$HOME/.config" "$HOME/.local/bin"
     local i target source
     for ((i = 0; i < ${#LINKS[@]}; i += 2)); do
         target="$HOME/${LINKS[i]}"; source="$DOTFILES/${LINKS[i + 1]}"

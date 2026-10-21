@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# dup — update every Docker stack on the home server in one command.
+#   dup             pull each stack, recreate only what changed, prune, rescan WUD
+#   dup --dry-run   show which stacks would change; touches nothing
+# Runs from the Mac over ssh. Stacks are the compose folders in ~/docker on the server.
+
+# Stacks dup never touches. Add more here.
+SKIP=(home_assistant matter-server)
+# Stacks updated only after a y/N prompt (recreating Dockge restarts its own UI).
+CONFIRM=(dockge)
+
+set -uo pipefail
+HERE="$(cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo "${BASH_SOURCE[0]}")")" && pwd)"
+source "$HERE/../private/homelab.env"   # HOMELAB_HOST, WUD_URL, WUD_USER, WUD_PASSWORD (not committed)
+HOST="${HOMELAB_HOST:-lin-server}"
+
+MODE=apply
+case "${1:-}" in
+    --dry-run|-n) MODE=check ;;
+    -h|--help) sed -n '2,5p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    "") ;;
+    *) echo "unknown option: $1 (try --help)" >&2; exit 2 ;;
+esac
+
+SAGE=$'\033[38;2;140;159;130m'; MUTED=$'\033[38;2;76;86;106m'; GOLD=$'\033[38;2;235;203;139m'
+RED=$'\033[38;2;191;97;106m'; DIM=$'\033[38;2;123;131;148m'; OFF=$'\033[0m'
+say() { printf '%s==>%s %s\n' "$SAGE" "$OFF" "$*"; }
+
+# Runs on the server: <mode> <skip list> <hold list> [only stack]
+# Prints "status<TAB>stack<TAB>detail" per stack as it goes.
+#   check: compare image digests with the registry + compose's dry run (no changes)
+#   apply: pull, then `up -d` only if compose would recreate something
+read -r -d '' REMOTE <<'EOS'
+mode=$1; skip=" $2 "; hold=" $3 "; only=${4:-}
+cd ~/docker || { printf 'error\t~/docker\tmissing\n'; exit 1; }
+for dir in */; do
+    s=${dir%/}
+    [ -n "$only" ] && [ "$s" != "$only" ] && continue
+    f=""; for c in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do [ -f "$s/$c" ] && { f=$c; break; }; done
+    [ -z "$f" ] && continue
+    case "$skip" in *" $s "*) printf 'skip\t%s\t\n' "$s"; continue ;; esac
+    m=$mode; [ -z "$only" ] && case "$hold" in *" $s "*) m=check ;; esac
+    dc() { docker compose --project-directory "$s" -f "$s/$f" "$@"; }
+
+    if [ "$m" = check ]; then
+        changed=""
+        for img in $(dc config --images 2>/dev/null); do
+            remote=$(docker buildx imagetools inspect "$img" --format '{{json .Manifest}}' 2>/dev/null | jq -r '.digest // empty')
+            if [ -z "$remote" ]; then changed="$changed $img(registry?)"; continue; fi
+            docker image inspect -f '{{range .RepoDigests}}{{println .}}{{end}}' "$img" 2>/dev/null \
+                | grep -q "@$remote$" || changed="$changed ${img##*/}"
+        done
+        drift=$(dc up -d --dry-run 2>&1 | grep -E 'Container .* (Recreate|Create) *$' | awk '{print $2}' | sort -u | tr '\n' ' ')
+        [ -n "$drift" ] && changed="$changed config:${drift% }"
+        if [ -n "$changed" ]; then
+            if case "$hold" in *" $s "*) true ;; *) false ;; esac && [ "$mode" = apply ]; then
+                printf 'held\t%s\t%s\n' "$s" "${changed# }"
+            else
+                printf 'would\t%s\t%s\n' "$s" "${changed# }"
+            fi
+        else
+            printf 'current\t%s\t\n' "$s"
+        fi
+        continue
+    fi
+
+    if ! out=$(dc pull -q 2>&1); then
+        printf 'error\t%s\tpull failed: %s\n' "$s" "$(printf '%s' "$out" | tail -1 | cut -c1-120)"; continue
+    fi
+    recreate=$(dc up -d --dry-run 2>&1 | grep -E 'Container .* (Recreate|Create) *$' | awk '{print $2}' | sort -u | tr '\n' ' ')
+    if [ -z "$recreate" ]; then printf 'current\t%s\t\n' "$s"; continue; fi
+    if out=$(dc up -d 2>&1); then
+        printf 'updated\t%s\t%s\n' "$s" "${recreate% }"
+    else
+        printf 'error\t%s\tup failed: %s\n' "$s" "$(printf '%s' "$out" | tail -1 | cut -c1-120)"
+    fi
+done
+if [ "$mode" = apply ] && [ -z "$only" ]; then
+    printf 'prune\t-\t%s\n' "$(docker image prune -f 2>/dev/null | awk '/reclaimed/ {print $NF}')"
+fi
+EOS
+
+UPDATED=() CURRENT=() FAILED=() SKIPPED=() HELD=()
+report() {  # reads status lines from the server, prints them as they arrive
+    while IFS=$'\t' read -r status stack detail; do
+        case "$status" in
+            updated) printf '  %s✓%s %-16s %s%s%s\n' "$SAGE" "$OFF" "$stack" "$DIM" "recreated: $detail" "$OFF"; UPDATED+=("$stack") ;;
+            would)   printf '  %s↑%s %-16s %s%s%s\n' "$GOLD" "$OFF" "$stack" "$DIM" "$detail" "$OFF"; UPDATED+=("$stack") ;;
+            current) printf '  %s·%s %s%-16s up to date%s\n' "$MUTED" "$OFF" "$MUTED" "$stack" "$OFF"; CURRENT+=("$stack") ;;
+            skip)    printf '  %s–%s %s%-16s skipped%s\n' "$MUTED" "$OFF" "$MUTED" "$stack" "$OFF"; SKIPPED+=("$stack") ;;
+            held)    printf '  %s?%s %-16s %s%s%s\n' "$GOLD" "$OFF" "$stack" "$DIM" "update ready: $detail" "$OFF"; HELD+=("$stack") ;;
+            error)   printf '  %s✗%s %-16s %s%s%s\n' "$RED" "$OFF" "$stack" "$RED" "$detail" "$OFF"; FAILED+=("$stack") ;;
+            prune)   printf '\n'; say "Pruned dangling images (${detail:-0B} reclaimed)" ;;
+        esac
+    done
+}
+
+# The script goes to a temp file first: run straight from stdin, docker would swallow the rest of it
+run_remote() {
+    local args="" a
+    for a in "$@"; do args="$args $(printf '%q' "$a")"; done
+    ssh -o BatchMode=yes "$HOST" "f=\$(mktemp) && cat > \"\$f\" && bash \"\$f\"$args; rm -f \"\$f\"" <<<"$REMOTE"
+}
+
+if [ $MODE = check ]; then
+    say "Checking stacks on $HOST (dry run, nothing changes)"
+else
+    say "Updating stacks on $HOST"
+fi
+report < <(run_remote "$MODE" "${SKIP[*]}" "${CONFIRM[*]}")
+
+for stack in "${HELD[@]+"${HELD[@]}"}"; do
+    printf '\n'
+    read -r -p "$(printf '%s?%s Update %s now? It restarts that service. [y/N] ' "$GOLD" "$OFF" "$stack")" yn </dev/tty
+    case "$yn" in
+        [yY]*) report < <(run_remote apply "${SKIP[*]}" "" "$stack") ;;
+        *) printf '  %s–%s %s%s left as is%s\n' "$MUTED" "$OFF" "$MUTED" "$stack" "$OFF" ;;
+    esac
+done
+
+printf '\n'
+if [ $MODE = check ]; then
+    say "Would update ${#UPDATED[@]} · up to date ${#CURRENT[@]} · skipped ${#SKIPPED[@]}$( [ ${#FAILED[@]} -gt 0 ] && echo " · ${RED}failed ${#FAILED[@]}${OFF}")"
+    exit 0
+fi
+say "Updated ${#UPDATED[@]} · up to date ${#CURRENT[@]} · skipped ${#SKIPPED[@]}$( [ ${#FAILED[@]} -gt 0 ] && echo " · ${RED}failed ${#FAILED[@]}: ${FAILED[*]}${OFF}")"
+
+# Have WUD re-check now (it may have just been recreated itself), then refresh the whale
+if [ -n "${WUD_URL:-}" ]; then
+    for _ in $(seq 1 30); do
+        curl -fs --max-time 3 -u "$WUD_USER:$WUD_PASSWORD" "$WUD_URL/api/app" >/dev/null && break
+        sleep 2
+    done
+    if curl -fs --max-time 180 -u "$WUD_USER:$WUD_PASSWORD" -X POST "$WUD_URL/api/containers/watch" >/dev/null; then
+        say "WUD rescanned"
+    else
+        printf '  %s!%s WUD rescan failed; the whale catches up on its next hourly check\n' "$GOLD" "$OFF"
+    fi
+fi
+command -v sketchybar >/dev/null && sketchybar --trigger wud_refresh >/dev/null 2>&1
+[ ${#FAILED[@]} -eq 0 ]
