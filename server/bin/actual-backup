@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# actual-backup — nightly snapshot of Actual Budget's data (user crontab, ~3:30 AM Eastern).
+# Pauses the container during the copy so its SQLite files are consistent (a few seconds),
+# writes ~/backups/actual/actual-YYYY-MM-DD_HHMM.tar.gz and keeps the newest $KEEP (14).
+# The Mac pulls new ones into iCloud Drive (dotfiles bin/actual-pull).
+# Installed to ~/.local/bin by server/deploy.sh; restore with actual-restore.
+set -euo pipefail
+
+DATA="$HOME/docker/actual/data"
+DEST="$HOME/backups/actual"
+KEEP="${KEEP:-14}"
+mkdir -p "$DEST"
+
+out="$DEST/actual-$(date +%Y-%m-%d_%H%M).tar.gz"
+paused=0
+unpause() { if [ $paused = 1 ]; then docker unpause actual >/dev/null; paused=0; fi; }
+trap unpause EXIT
+
+if [ "$(docker inspect -f '{{.State.Running}}' actual 2>/dev/null)" = true ]; then
+    docker pause actual >/dev/null && paused=1
+fi
+tar -czf "$out.tmp" -C "$(dirname "$DATA")" "$(basename "$DATA")"
+unpause
+
+tar -tzf "$out.tmp" >/dev/null          # readable before it counts as a backup
+mv "$out.tmp" "$out"
+ls -1t "$DEST"/actual-*.tar.gz | tail -n +$((KEEP + 1)) | xargs -r rm --
+
+echo "$(date '+%F %T') $(basename "$out") $(du -h "$out" | cut -f1)"

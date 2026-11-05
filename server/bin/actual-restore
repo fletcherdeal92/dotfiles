@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# actual-restore — put Actual Budget's data back from a backup made by actual-backup.
+#   actual-restore                  list available backups
+#   actual-restore <backup.tar.gz>  stop Actual, set the current data aside, restore, start
+# The current data is kept as ~/docker/actual/data.before-restore-<time>, so a restore
+# can itself be undone. Backups pulled to the Mac can be copied back with scp first.
+set -euo pipefail
+
+STACK="$HOME/docker/actual"
+DEST="$HOME/backups/actual"
+
+if [ $# -eq 0 ]; then
+    echo "Backups in $DEST (newest first):"
+    ls -1t "$DEST"/actual-*.tar.gz 2>/dev/null | sed 's#.*/#  #' || echo "  (none)"
+    echo "Restore one with: actual-restore <file>"
+    exit 0
+fi
+
+file="$1"; [ -f "$file" ] || file="$DEST/$1"
+[ -f "$file" ] || { echo "No such backup: $1" >&2; exit 1; }
+tar -tzf "$file" | grep -q '^data/' || { echo "$file doesn't look like an Actual backup" >&2; exit 1; }
+
+aside="$STACK/data.before-restore-$(date +%Y%m%d-%H%M%S)"
+echo "Restoring $(basename "$file")"
+docker compose --project-directory "$STACK" stop actual
+mv "$STACK/data" "$aside"
+tar -xzf "$file" -C "$STACK"
+docker compose --project-directory "$STACK" up -d actual
+echo "Done. Previous data kept at $aside (delete it once you're happy)."
+echo "In the Actual app, reopen the budget; if it complains about sync, choose to reset sync."

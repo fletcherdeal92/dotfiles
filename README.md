@@ -158,6 +158,7 @@ each stack's `.env`, and data stays in volumes.
 | **Miniflux** + Postgres | The reading room: feeds and read state, synced to ReadKit on iPhone and Mac |
 | **changedetection.io** | Watches pages without feeds and publishes changes as RSS into Miniflux |
 | **SearXNG** + Valkey | Private metasearch (images tab included), themed through Zen |
+| **Actual Budget** | Budgeting, at its own HTTPS address on the tailnet (`tailscale serve`); backed up nightly to iCloud Drive |
 | **What's Up Docker** | Notify-only image update checks, shown on the bar and Homepage |
 | **Tailscale** | Same hostnames at home and away; nothing is on the public internet |
 
@@ -172,6 +173,22 @@ of it:
 - **Research** collects Digital Library of Georgia search feeds and changedetection.io watches.
 - **Blocking rules** (`config/miniflux/block-rules.txt`) hide sports across every feed, by tag
   and by team or league in the title.
+
+### Actual Budget
+
+Actual's container listens on the server's localhost only. `tailscale serve` publishes it to the
+tailnet over HTTPS at the server's tailnet name (Actual needs a secure context), so it's never on the
+LAN or the internet. Its data lives in `~/docker/actual/data` on the server.
+
+| Piece | What it does |
+|---|---|
+| `server/bin/actual-backup` | Nightly (cron, 3:30 AM Eastern). Pauses Actual for a few seconds, writes `~/backups/actual/actual-<date>.tar.gz`, keeps 14 |
+| `bin/actual-pull` + `config/launchd/actual-pull.plist` | On the Mac, at login and every 6 h. Copies new backups into iCloud Drive → `Backups/Actual Budget/`, keeps 60 |
+| `server/bin/actual-restore` | `actual-restore` lists backups; `actual-restore <file>` sets the current data aside and restores |
+
+macOS lets background jobs write to iCloud Drive but not list it, so `actual-pull` tracks its copies
+in `~/.cache/actual-pull/manifest`. `install.sh` installs the launchd job and `server/deploy.sh`
+installs the server scripts and the cron entry.
 
 ### Updating containers: `dup`
 

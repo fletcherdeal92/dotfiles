@@ -38,6 +38,7 @@ LINKS=(
     ".config/lazygit"            "config/lazygit"
     ".local/bin/dup"             "bin/dup"   # update every Docker stack on the server
     ".local/bin/brewup"          "bin/brewup"   # update Homebrew + App Store apps
+    ".local/bin/actual-pull"     "bin/actual-pull"   # copy Actual Budget backups to iCloud Drive
 )
 
 link_one() {  # link_one <absolute target> <absolute source> <label>
@@ -123,6 +124,26 @@ ensure_private() {
     fi
 }
 
+# launchd needs absolute paths and a real file (not a symlink) in ~/Library/LaunchAgents
+install_agents() {
+    local tmpl label target
+    for tmpl in "$DOTFILES"/config/launchd/*.plist; do
+        [ -f "$tmpl" ] || continue
+        label="com.dotfiles.$(basename "$tmpl" .plist)"
+        target="$HOME/Library/LaunchAgents/$label.plist"
+        if [ -f "$target" ] && [ "$(sed "s#__HOME__#$HOME#g" "$tmpl")" = "$(cat "$target")" ]; then
+            echo "  ok      launchd $label"
+            continue
+        fi
+        echo "  install launchd $label"
+        [ $DRY = 1 ] && continue
+        mkdir -p "$HOME/Library/LaunchAgents"
+        launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
+        sed "s#__HOME__#$HOME#g" "$tmpl" > "$target"
+        launchctl bootstrap "gui/$(id -u)" "$target"
+    done
+}
+
 link_all() {
     say "Linking configs"
     ensure_private
@@ -143,6 +164,7 @@ link_all() {
         run ln -s "$source" "$target"
     done
     link_zen
+    install_agents
 }
 
 if [ $LINKS_ONLY = 1 ]; then link_all; exit 0; fi

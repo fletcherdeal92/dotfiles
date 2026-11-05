@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Template: install.sh fills in __HOME__ and installs it to ~/Library/LaunchAgents. -->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.dotfiles.actual-pull</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>__HOME__/.local/bin/actual-pull</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartInterval</key>
+    <integer>21600</integer>
+    <key>StandardOutPath</key>
+    <string>__HOME__/Library/Logs/actual-pull.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Library/Logs/actual-pull.log</string>
+    <key>ProcessType</key>
+    <string>Background</string>
+</dict>
+</plist>

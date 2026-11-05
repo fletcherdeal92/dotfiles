@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Copy server/fastfetch to the home server's ~/.config/fastfetch and run setup.sh there;
-# install server/bin/* (wud-classify, used by the Sketchybar whale) into ~/.local/bin.
+# install server/bin/* (wud-classify for the Sketchybar whale; actual-backup/-restore) into
+# ~/.local/bin, and the nightly Actual backup in the user crontab (server runs on UTC).
 #   ./server/deploy.sh [ssh-host]   (default: lin-server)
 set -euo pipefail
 HOST="${1:-lin-server}"
@@ -10,5 +11,7 @@ scp -q "$HERE"/fastfetch/{config.jsonc,logo.txt,login.sh} "$HOST":.config/fastfe
 scp -q "$HERE"/fastfetch/bin/*.sh "$HOST":.config/fastfetch/bin/
 ssh "$HOST" 'mkdir -p ~/.local/bin'
 scp -q "$HERE"/bin/* "$HOST":.local/bin/
-ssh "$HOST" 'chmod +x ~/.local/bin/wud-classify'
+ssh "$HOST" 'cd ~/.local/bin && chmod +x wud-classify actual-backup actual-restore'
+CRON='30 7 * * * $HOME/.local/bin/actual-backup >> $HOME/backups/actual/backup.log 2>&1   # 3:30 AM EDT / 2:30 AM EST'
+ssh "$HOST" "mkdir -p ~/backups/actual; crontab -l 2>/dev/null | grep -q actual-backup || (crontab -l 2>/dev/null; echo '$CRON') | crontab -"
 ssh "$HOST" 'bash -s' < "$HERE/setup.sh"

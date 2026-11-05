@@ -1,0 +1,46 @@
+#!/bin/bash
+# actual-pull — copy new Actual Budget backups from the server into iCloud Drive.
+# Run by launchd at login and every 6 hours (config/launchd/actual-pull.plist, installed by
+# install.sh); works anywhere Tailscale does. Only copies files it doesn't have yet, and
+# keeps the newest $KEEP (60) here; the server keeps its own 14.
+# Background jobs may write to iCloud Drive but not list it (macOS privacy rules), so the
+# copies are tracked in a manifest outside iCloud instead of by listing the folder.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "$(readlink "$0" || echo "$0")")" && pwd)"
+source "$HERE/../private/homelab.env"   # HOMELAB_HOST (not committed)
+HOST="${HOMELAB_HOST:-lin-server}"
+DEST="${ACTUAL_BACKUP_DIR:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/Backups/Actual Budget}"
+KEEP="${KEEP:-60}"
+MANIFEST="$HOME/.cache/actual-pull/manifest"   # names of copied backups, oldest first
+SSH=(ssh -o BatchMode=yes -o ConnectTimeout=10)
+
+log() { echo "$(date '+%F %T') $*"; }
+mkdir -p "$DEST" "$(dirname "$MANIFEST")" || { log "can't create $DEST"; exit 1; }
+touch "$MANIFEST"
+
+remote="$("${SSH[@]}" "$HOST" 'ls -1 ~/backups/actual/actual-*.tar.gz 2>/dev/null')" \
+    || { log "server unreachable; will retry next run"; exit 0; }
+
+copied=0
+for path in $remote; do
+    name="${path##*/}"
+    if [ -f "$DEST/$name" ]; then
+        grep -qxF "$name" "$MANIFEST" || echo "$name" >> "$MANIFEST"
+        continue
+    fi
+    if scp -q -o BatchMode=yes -o ConnectTimeout=10 "$HOST:$path" "$DEST/$name.part" && mv "$DEST/$name.part" "$DEST/$name"; then
+        echo "$name" >> "$MANIFEST"
+        copied=$((copied + 1))
+    else
+        rm -f "$DEST/$name.part"; log "failed to copy $name"
+    fi
+done
+
+# Prune the oldest beyond $KEEP (names sort by date), then drop entries for files that are gone
+sort -u "$MANIFEST" -o "$MANIFEST"
+excess=$(( $(grep -c . "$MANIFEST") - KEEP ))
+[ $excess -gt 0 ] && head -n "$excess" "$MANIFEST" | while IFS= read -r old; do rm -f "$DEST/$old"; done
+kept=""; while IFS= read -r name; do [ -f "$DEST/$name" ] && kept="$kept$name"$'\n'; done < "$MANIFEST"
+printf '%s' "$kept" > "$MANIFEST"
+log "copied $copied new · $(grep -c . "$MANIFEST") backups in iCloud Drive"
