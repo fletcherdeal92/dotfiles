@@ -10,6 +10,8 @@ alias find="fd"
 
 # Homelab: update every Docker stack on the server (`dup --dry-run` to preview)
 alias dup="$HOME/.local/bin/dup"
+# Mac: update Homebrew + App Store apps (`brewup --dry-run` to preview)
+alias brewup="$HOME/.local/bin/brewup"
 
 # eza only reads ~/.config on macOS when told to
 export EZA_CONFIG_DIR="$HOME/.config/eza"

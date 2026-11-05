@@ -37,6 +37,7 @@ LINKS=(
     ".config/fastfetch"          "config/fastfetch"
     ".config/lazygit"            "config/lazygit"
     ".local/bin/dup"             "bin/dup"   # update every Docker stack on the server
+    ".local/bin/brewup"          "bin/brewup"   # update Homebrew + App Store apps
 )
 
 link_one() {  # link_one <absolute target> <absolute source> <label>

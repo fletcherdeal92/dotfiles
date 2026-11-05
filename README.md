@@ -116,6 +116,12 @@ inherit variables from `sketchybarrc`, so each one sources `colors.sh`. Custom a
 - **zsh** + **Starship** prompt, with fzf, zoxide, autosuggestions and syntax highlighting.
 - Themed CLI tools: `bat`, `eza`, `btop`, `fzf`, `delta` (git diffs), `lazygit`, `fastfetch`.
 
+**`brewup`** (`bin/brewup`) updates the Mac in one go: `brew update`, `brew upgrade`, App Store
+upgrades through `mas`, then `brew cleanup`. It ends with a summary and refreshes the bar's Homebrew
+count. `brewup --dry-run` lists what's outdated. If a cask stays stuck (an app that updated itself
+past Homebrew's record), it prints the `--force` reinstall that fixes it. Its server counterpart is
+[`dup`](#updating-containers-dup).
+
 ### Apps
 
 | App | Theme | Where |

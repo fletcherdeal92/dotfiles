@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# brewup — update everything Homebrew (and the App Store) manages, in one command.
+#   brewup             brew update + upgrade, App Store upgrades, cleanup, refresh the bar
+#   brewup --dry-run   list what's outdated; changes nothing
+# Companion to `dup` (Docker on the server). Some casks may ask for your password.
+
+set -uo pipefail
+
+MODE=apply
+case "${1:-}" in
+    --dry-run|-n) MODE=check ;;
+    -h|--help) sed -n '2,5p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    "") ;;
+    *) echo "unknown option: $1 (try --help)" >&2; exit 2 ;;
+esac
+
+SAGE=$'\033[38;2;140;159;130m'; MUTED=$'\033[38;2;76;86;106m'; GOLD=$'\033[38;2;235;203;139m'
+RED=$'\033[38;2;191;97;106m'; DIM=$'\033[38;2;123;131;148m'; OFF=$'\033[0m'
+say() { printf '%s==>%s %s\n' "$SAGE" "$OFF" "$*"; }
+
+command -v brew >/dev/null || { echo "Homebrew isn't installed" >&2; exit 1; }
+HAVE_MAS=0; command -v mas >/dev/null && HAVE_MAS=1
+
+say "Updating Homebrew"
+# The bar's hourly check also runs `brew update`; only one can run at once, so retry briefly
+updated=0
+for _ in 1 2 3 4 5 6; do
+    brew update --quiet >/dev/null 2>&1 && { updated=1; break; }
+    sleep 5
+done
+[ $updated = 1 ] || printf '  %s!%s brew update failed; using the package list it already has\n' "$GOLD" "$OFF"
+
+BEFORE="$(brew outdated --verbose 2>/dev/null)"
+MAS_BEFORE=""; [ $HAVE_MAS = 1 ] && MAS_BEFORE="$(mas outdated 2>/dev/null)"
+
+if [ -z "$BEFORE" ] && [ -z "$MAS_BEFORE" ]; then
+    say "Everything is up to date"
+    [ $MODE = apply ] && command -v sketchybar >/dev/null && sketchybar --trigger brew_refresh >/dev/null 2>&1
+    exit 0
+fi
+
+say "Outdated"
+[ -n "$BEFORE" ] && printf '%s\n' "$BEFORE" | sed "s/^/  ${GOLD}↑${OFF} /"
+[ -n "$MAS_BEFORE" ] && printf '%s\n' "$MAS_BEFORE" | sed "s/^/  ${GOLD}↑${OFF} (App Store) /"
+[ $MODE = check ] && { printf '\n'; say "Dry run: nothing changed. Run \`brewup\` to upgrade."; exit 0; }
+
+printf '\n'
+if [ -n "$BEFORE" ]; then
+    say "Upgrading"
+    brew upgrade          # left interactive: some casks need your password
+fi
+if [ -n "$MAS_BEFORE" ]; then
+    say "Upgrading App Store apps"
+    mas upgrade
+fi
+
+printf '\n'
+say "Cleaning up old versions"
+FREED="$(brew cleanup 2>/dev/null | sed -n 's/.*freed approximately \([^ ]*\).*/\1/p' | tail -1)"
+if [ -n "$FREED" ]; then printf '  %sfreed %s%s\n' "$DIM" "$FREED" "$OFF"; else printf '  %snothing to remove%s\n' "$DIM" "$OFF"; fi
+
+# Summary: anything still outdated failed (or is a cask stuck on a stale record)
+AFTER="$(brew outdated --verbose 2>/dev/null)"
+UPDATED=0; STUCK=""
+while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    name="${line%% *}"
+    if printf '%s\n' "$AFTER" | grep -q "^$name "; then STUCK="$STUCK $name"; else UPDATED=$((UPDATED + 1)); fi
+done <<<"$BEFORE"
+[ -n "$MAS_BEFORE" ] && UPDATED=$((UPDATED + $(printf '%s\n' "$MAS_BEFORE" | grep -c .)))
+
+printf '\n'
+if [ -z "$STUCK" ]; then
+    say "Upgraded $UPDATED"
+else
+    say "Upgraded $UPDATED · ${RED}still outdated:${STUCK}${OFF}"
+    for name in $STUCK; do
+        if brew list --cask "$name" >/dev/null 2>&1; then
+            printf '  %s%s%s: if it keeps failing, its install record may be stale (the app updated itself). Reinstall it:\n' "$GOLD" "$name" "$OFF"
+            printf '    brew uninstall --cask --force %s && brew install --cask --force %s\n' "$name" "$name"
+        else
+            printf '  %s%s%s: see the error above, or run: brew upgrade %s\n' "$GOLD" "$name" "$OFF" "$name"
+        fi
+    done
+fi
+
+command -v sketchybar >/dev/null && sketchybar --trigger brew_refresh >/dev/null 2>&1
+[ -z "$STUCK" ]

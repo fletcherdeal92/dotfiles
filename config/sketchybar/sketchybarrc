@@ -200,9 +200,10 @@ sketchybar \
 	--add item weather right \
 	--set weather "${weather[@]}" \
 	--subscribe weather system_woke \
+	--add event brew_refresh \
 	--add item brew right \
 	--set brew "${brew[@]}" "${hover[@]}" \
-	--subscribe brew system_woke mouse.clicked mouse.entered mouse.exited \
+	--subscribe brew system_woke brew_refresh mouse.clicked mouse.entered mouse.exited \
 	--add event wud_refresh \
 	--add item wud right \
 	--set wud "${wud[@]}" "${hover[@]}" \
