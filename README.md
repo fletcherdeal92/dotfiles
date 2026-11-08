@@ -190,6 +190,17 @@ macOS lets background jobs write to iCloud Drive but not list it, so `actual-pul
 in `~/.cache/actual-pull/manifest`. `install.sh` installs the launchd job and `server/deploy.sh`
 installs the server scripts and the cron entry.
 
+### Pruning Stash: `stash-prune`
+
+Tag scenes `prune` in Stash (the Wall view with a Duration filter makes triage quick), then run
+`stash-prune` from the Mac for a preview and `stash-prune --apply` to do it.
+`server/bin/stash-prune` matches each file against qBittorrent:
+- **not seeding:** deleted
+- **a whole torrent:** removed with its data, once it has seeded 14 days or reached a 1.0 ratio
+- **part of a pack:** just that file is dropped, so the rest keeps seeding
+
+Anything unclear is held, never deleted.
+
 ### Updating containers: `dup`
 
 ```bash

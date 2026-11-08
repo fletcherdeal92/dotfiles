@@ -11,7 +11,7 @@ scp -q "$HERE"/fastfetch/{config.jsonc,logo.txt,login.sh} "$HOST":.config/fastfe
 scp -q "$HERE"/fastfetch/bin/*.sh "$HOST":.config/fastfetch/bin/
 ssh "$HOST" 'mkdir -p ~/.local/bin'
 scp -q "$HERE"/bin/* "$HOST":.local/bin/
-ssh "$HOST" 'cd ~/.local/bin && chmod +x wud-classify actual-backup actual-restore media-mount'
+ssh "$HOST" 'cd ~/.local/bin && chmod +x wud-classify actual-backup actual-restore media-mount stash-prune'
 # System-level pieces are staged in ~/.local/share/dotfiles-system; installing them needs sudo
 ssh "$HOST" 'mkdir -p ~/.local/share/dotfiles-system'
 scp -q "$HERE"/systemd/*.service "$HOST":.local/share/dotfiles-system/

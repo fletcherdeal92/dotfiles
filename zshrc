@@ -12,6 +12,8 @@ alias find="fd"
 alias dup="$HOME/.local/bin/dup"
 # Mac: update Homebrew + App Store apps (`brewup --dry-run` to preview)
 alias brewup="$HOME/.local/bin/brewup"
+# Homelab: remove Stash scenes tagged `prune`, seeding-safe (`stash-prune --apply` to do it)
+alias stash-prune='ssh -t lin-server \~/.local/bin/stash-prune'
 
 # eza only reads ~/.config on macOS when told to
 export EZA_CONFIG_DIR="$HOME/.config/eza"

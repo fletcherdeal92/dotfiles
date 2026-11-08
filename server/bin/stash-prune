@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""stash-prune — remove the scenes you've tagged `prune` in Stash, without breaking seeding.
+
+  stash-prune            preview: what would go, how much space, what's held back
+  stash-prune --apply    do it
+
+Each tagged scene's file is handled by where it came from:
+  not in any torrent          -> Stash deletes the file (and its previews)
+  every file of a torrent     -> qBittorrent removes the torrent with its data, but only once it
+                                 has seeded MIN_SEED_DAYS or reached MIN_RATIO; otherwise held
+  some files of a torrent     -> that file is set to "don't download" in qBittorrent, then deleted;
+                                 the rest of the torrent keeps seeding
+Still-downloading torrents are always held. Removed scenes are dropped from Stash.
+Runs on the server; credentials come from Homepage's .env (HOMEPAGE_VAR_STASH_KEY,
+HOMEPAGE_VAR_QBIT_USER/PASS). Installed to ~/.local/bin by server/deploy.sh.
+"""
+import http.cookiejar, json, os, subprocess, sys, unicodedata, urllib.parse, urllib.request
+
+TAG = "prune"
+MIN_SEED_DAYS = 14      # tracker rules aren't published: stay conservative
+MIN_RATIO = 1.0         # ...either one is enough to let a torrent go
+ENV = os.path.expanduser("~/docker/homepage/.env")
+STASH = "http://localhost:9999/graphql"
+QBIT = "http://localhost:8080/api/v2"
+
+SAGE, MUTED, GOLD = "\033[38;2;140;159;130m", "\033[38;2;76;86;106m", "\033[38;2;235;203;139m"
+RED, DIM, OFF = "\033[38;2;191;97;106m", "\033[38;2;123;131;148m", "\033[0m"
+
+
+def say(msg): print(f"{SAGE}==>{OFF} {msg}")
+def gb(n): return f"{n / 1e9:.1f} GB" if n >= 1e8 else f"{n / 1e6:.0f} MB"
+
+
+def load_env():
+    env = {}
+    for line in open(ENV):
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            env[k] = v.strip().strip('"').strip("'")
+    return env
+
+
+ENVV = load_env()
+
+
+def gql(query, variables=None):
+    req = urllib.request.Request(STASH, json.dumps({"query": query, "variables": variables or {}}).encode(),
+                                 {"Content-Type": "application/json", "ApiKey": ENVV["HOMEPAGE_VAR_STASH_KEY"]})
+    out = json.load(urllib.request.urlopen(req, timeout=120))
+    if out.get("errors"):
+        raise SystemExit(f"Stash error: {out['errors'][0]['message']}")
+    return out["data"]
+
+
+jar = http.cookiejar.CookieJar()
+qb_opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+
+
+def qb(path, data=None):
+    body = urllib.parse.urlencode(data).encode() if data is not None else None
+    resp = qb_opener.open(urllib.request.Request(QBIT + path, body, {"Referer": "http://localhost:8080"}), timeout=60)
+    text = resp.read().decode()
+    return json.loads(text) if text and text[0] in "[{" else text
+
+
+def mounts(container):
+    info = json.loads(subprocess.check_output(["docker", "inspect", container]))[0]
+    # longest container path first, so /downloads/x matches before /downloads
+    return sorted(((m["Destination"], m["Source"]) for m in info["Mounts"]), key=lambda m: -len(m[0]))
+
+
+def to_host(path, table):
+    # NFC so "–" and accented names compare equal however each app encoded them
+    for dest, src in table:
+        if path == dest or path.startswith(dest.rstrip("/") + "/"):
+            return unicodedata.normalize("NFC", src + path[len(dest):])
+    return unicodedata.normalize("NFC", path)
+
+
+def main():
+    apply = "--apply" in sys.argv[1:]
+    stash_mounts, qbit_mounts = mounts("stash"), mounts("qbittorrent")
+
+    tags = gql('query($n:String!){ findTags(tag_filter:{name:{value:$n, modifier:EQUALS}}){ tags{ id } } }',
+               {"n": TAG})["findTags"]["tags"]
+    if not tags:
+        say(f"No `{TAG}` tag in Stash yet. Tag the scenes you want gone, then run this again.")
+        return
+    scenes = gql('query($t:[ID!]){ findScenes(filter:{per_page:-1},'
+                 ' scene_filter:{tags:{value:$t, modifier:INCLUDES}}){'
+                 ' scenes{ id title files{ path size duration } } } }', {"t": [tags[0]["id"]]})["findScenes"]["scenes"]
+    if not scenes:
+        say(f"Nothing tagged `{TAG}`.")
+        return
+
+    # Map every file qBittorrent knows about to (torrent, file index)
+    qb("/auth/login", {"username": ENVV["HOMEPAGE_VAR_QBIT_USER"], "password": ENVV["HOMEPAGE_VAR_QBIT_PASS"]})
+    torrents = {t["hash"]: t for t in qb("/torrents/info")}
+    by_path, wanted, roots = {}, {}, {}
+    for h, t in torrents.items():
+        roots[to_host(t["content_path"], qbit_mounts).rstrip("/")] = h
+        files = qb(f"/torrents/files?hash={h}")
+        wanted[h] = {to_host(f"{t['save_path'].rstrip('/')}/{f['name']}", qbit_mounts) for f in files if f["priority"] > 0}
+        for f in files:
+            by_path[to_host(f"{t['save_path'].rstrip('/')}/{f['name']}", qbit_mounts)] = (h, f["index"])
+
+    tagged_paths = {to_host(f["path"], stash_mounts) for s in scenes for f in s["files"]}
+    # A torrent counts as fully pruned when every file of it that Stash knows is tagged
+    # (its .nfo/.jpg extras go with it)
+    all_stash = {to_host(f["path"], stash_mounts) for s in gql("{ findScenes(filter:{per_page:-1})"
+                 "{ scenes{ files{ path } } } }")["findScenes"]["scenes"] for f in s["files"]}
+
+    def owner_folder(path):
+        # an unmatched file inside a live torrent's folder: renamed or mis-encoded, never delete it
+        for root, h in roots.items():
+            if path == root or path.startswith(root + "/"):
+                return h
+        return None
+
+    def seed_ok(t):
+        if t["progress"] < 1:
+            return False, "still downloading"
+        days, ratio = t["seeding_time"] / 86400, t["ratio"]
+        if days >= MIN_SEED_DAYS or ratio >= MIN_RATIO:
+            return True, ""
+        return False, f"seeded {days:.0f}d, ratio {ratio:.2f} (needs {MIN_SEED_DAYS}d or {MIN_RATIO})"
+
+    plan = {"delete": [], "torrent": {}, "skip": [], "held": []}
+    for s in scenes:
+        title = s["title"] or (os.path.basename(s["files"][0]["path"]) if s["files"] else s["id"])
+        size = sum(int(f["size"]) for f in s["files"])
+        kinds, why = [], ""
+        for f in s["files"]:
+            hp = to_host(f["path"], stash_mounts)
+            if hp not in by_path:
+                h = owner_folder(hp)
+                if h:
+                    why = f"{torrents[h]['name'][:40]}: in its folder but not its file list; check by hand"
+                    kinds.append(("held", h, None))
+                else:
+                    kinds.append(("delete", None, None))
+                continue
+            h, idx = by_path[hp]
+            ok, reason = seed_ok(torrents[h])
+            whole = (wanted[h] & all_stash) <= tagged_paths
+            if not ok and (whole or reason == "still downloading"):
+                why = f"{torrents[h]['name'][:40]}: {reason}"
+                kinds.append(("held", h, idx))
+            else:
+                kinds.append(("torrent" if whole else "skip", h, idx))
+        if any(k == "held" for k, _, _ in kinds):
+            plan["held"].append((s, title, size, why))
+        elif all(k == "delete" for k, _, _ in kinds):
+            plan["delete"].append((s, title, size))
+        elif all(k == "torrent" for k, _, _ in kinds):
+            plan["torrent"].setdefault(kinds[0][1], []).append((s, title, size))
+        else:
+            plan["skip"].append((s, title, size, kinds))
+
+    def section(label, color, rows, note=""):
+        if not rows:
+            return 0
+        total = sum(r[2] for r in rows)
+        print(f"\n{color}{label}{OFF} {DIM}({len(rows)} · {gb(total)}){note}{OFF}")
+        for r in rows[:25]:
+            extra = f"  {DIM}{r[3]}{OFF}" if len(r) > 3 and isinstance(r[3], str) else ""
+            print(f"  {r[1][:70]:<70} {DIM}{gb(r[2]):>8}{OFF}{extra}")
+        if len(rows) > 25:
+            print(f"  {DIM}… and {len(rows) - 25} more{OFF}")
+        return total
+
+    say(f"{len(scenes)} scenes tagged `{TAG}`" + ("" if apply else " (preview, nothing changes)"))
+    freed = section("Delete (not seeding)", SAGE, plan["delete"])
+    torrent_rows = [r for rows in plan["torrent"].values() for r in rows]
+    freed += section("Remove torrent + data (seeding done)", SAGE, torrent_rows,
+                     f" · {len(plan['torrent'])} torrent(s)")
+    freed += section("Drop file from a torrent (rest keeps seeding)", SAGE, plan["skip"])
+    section("Held back", GOLD, plan["held"])
+
+    if not apply:
+        print(f"\n{SAGE}==>{OFF} Would free {gb(freed)}. Run {SAGE}stash-prune --apply{OFF} to do it.")
+        return
+
+    destroy = 'mutation($i:SceneDestroyInput!){ sceneDestroy(input:$i) }'
+    done = failed = 0
+    for s, title, size in plan["delete"]:
+        try:
+            gql(destroy, {"i": {"id": s["id"], "delete_file": True, "delete_generated": True}}); done += 1
+        except SystemExit as e:
+            print(f"  {RED}✗{OFF} {title[:60]}: {e}"); failed += 1
+    for h, rows in plan["torrent"].items():
+        try:
+            qb("/torrents/delete", {"hashes": h, "deleteFiles": "true"})
+            for s, title, size in rows:
+                gql(destroy, {"i": {"id": s["id"], "delete_file": False, "delete_generated": True}}); done += 1
+        except Exception as e:  # noqa: BLE001 — report and keep going
+            print(f"  {RED}✗{OFF} torrent {torrents[h]['name'][:50]}: {e}"); failed += 1
+    for s, title, size, kinds in plan["skip"]:
+        try:
+            for kind, h, idx in kinds:
+                if h and idx is not None:
+                    qb("/torrents/filePrio", {"hash": h, "id": idx, "priority": 0})
+            gql(destroy, {"i": {"id": s["id"], "delete_file": True, "delete_generated": True}}); done += 1
+        except Exception as e:  # noqa: BLE001
+            print(f"  {RED}✗{OFF} {title[:60]}: {e}"); failed += 1
+
+    print()
+    say(f"Removed {done} scene(s), freed about {gb(freed)}"
+        + (f" · {RED}{failed} failed{OFF}" if failed else "")
+        + (f" · {GOLD}{len(plan['held'])} held{OFF}" if plan["held"] else ""))
+
+
+if __name__ == "__main__":
+    main()
