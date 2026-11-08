@@ -11,7 +11,10 @@ scp -q "$HERE"/fastfetch/{config.jsonc,logo.txt,login.sh} "$HOST":.config/fastfe
 scp -q "$HERE"/fastfetch/bin/*.sh "$HOST":.config/fastfetch/bin/
 ssh "$HOST" 'mkdir -p ~/.local/bin'
 scp -q "$HERE"/bin/* "$HOST":.local/bin/
-ssh "$HOST" 'cd ~/.local/bin && chmod +x wud-classify actual-backup actual-restore'
+ssh "$HOST" 'cd ~/.local/bin && chmod +x wud-classify actual-backup actual-restore media-mount'
+# System-level pieces are staged in ~/.local/share/dotfiles-system; installing them needs sudo
+ssh "$HOST" 'mkdir -p ~/.local/share/dotfiles-system'
+scp -q "$HERE"/systemd/*.service "$HOST":.local/share/dotfiles-system/
 CRON='30 7 * * * $HOME/.local/bin/actual-backup >> $HOME/backups/actual/backup.log 2>&1   # 3:30 AM EDT / 2:30 AM EST'
 ssh "$HOST" "mkdir -p ~/backups/actual; crontab -l 2>/dev/null | grep -q actual-backup || (crontab -l 2>/dev/null; echo '$CRON') | crontab -"
 ssh "$HOST" 'bash -s' < "$HERE/setup.sh"

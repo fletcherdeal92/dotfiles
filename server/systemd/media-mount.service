@@ -1,0 +1,13 @@
+# Mount the Mac mini media share once the network is really usable, then restart the
+# containers that read it. Installed to /etc/systemd/system; see server/bin/media-mount.
+[Unit]
+Description=Mount the Mac mini media share (with retries) and restart its containers
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/media-mount
+
+[Install]
+WantedBy=multi-user.target

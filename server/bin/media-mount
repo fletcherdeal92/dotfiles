@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# media-mount — mount the Mac mini's media share at boot, retrying until it answers, then
+# restart the containers that use it so they attach to the real share (a container started
+# before the mount binds the empty folder underneath instead).
+# Run as root by media-mount.service (installed to /usr/local/sbin). Gives up after ~10 min,
+# e.g. when the mini is off; nothing else waits on it. Retry later with:
+#   sudo systemctl restart media-mount
+set -u
+
+MNT=/mnt/adultmedia
+CONTAINERS="stash qbittorrent"
+
+for attempt in $(seq 1 60); do
+    if mountpoint -q "$MNT" || mount "$MNT" 2>/dev/null; then
+        if timeout 15 ls "$MNT" >/dev/null 2>&1; then
+            echo "$MNT mounted (attempt $attempt); restarting $CONTAINERS"
+            docker restart $CONTAINERS
+            exit 0
+        fi
+    fi
+    sleep 10
+done
+echo "gave up on $MNT after 10 minutes; is the Mac mini sharing it?"
+exit 1
