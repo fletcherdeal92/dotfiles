@@ -119,6 +119,8 @@ def main():
         return None
 
     def seed_ok(t):
+        if t["state"] == "missingFiles":
+            return False, "qBittorrent thinks its files are missing (Start or Force recheck it)"
         if t["progress"] < 1:
             return False, "still downloading"
         days, ratio = t["seeding_time"] / 86400, t["ratio"]
@@ -144,7 +146,7 @@ def main():
             h, idx = by_path[hp]
             ok, reason = seed_ok(torrents[h])
             whole = (wanted[h] & all_stash) <= tagged_paths
-            if not ok and (whole or reason == "still downloading"):
+            if not ok and (whole or reason == "still downloading" or "missing" in reason):
                 why = f"{torrents[h]['name'][:40]}: {reason}"
                 kinds.append(("held", h, idx))
             else:
